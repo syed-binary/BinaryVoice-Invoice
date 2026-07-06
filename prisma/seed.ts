@@ -27,7 +27,7 @@ async function main() {
     city: "Dubai",
     emirate: "Dubai",
     country: "United Arab Emirates",
-    phone: "+971 56 533 7921",
+    phone: "+971-551179083",
     email: "syed.asad@binarylabz.com",
     website: "https://binarylabz.com",
     corporateTaxTrn: "105462369700001",

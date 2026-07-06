@@ -366,13 +366,10 @@ export function EstimateEditor({
               <span className="tabular">{formatMoney(totals.total, currency)}</span>
             </div>
             {withholdingEnabled && (
-              <>
-                <Row label={`Withholding (${withholdingRate}%)`} value={`−${formatMoney(totals.withholdingAmount, currency)}`} />
-                <div className="flex items-center justify-between rounded-md bg-primary/10 px-3 py-2 font-bold text-primary">
-                  <span>Net payable</span>
-                  <span className="tabular">{formatMoney(totals.netPayable, currency)}</span>
-                </div>
-              </>
+              <div className="flex items-center justify-between rounded-md bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
+                <span>Withholding ({withholdingRate}%) · over-and-above</span>
+                <span className="tabular">{formatMoney(totals.withholdingAmount, currency)}</span>
+              </div>
             )}
           </div>
         </div>

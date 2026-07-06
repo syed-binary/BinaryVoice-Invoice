@@ -105,13 +105,7 @@ export function ProfessionalTemplate({ data }: { data: DocData }) {
                 <td className="px-2 py-2 text-right font-display text-[14px] font-bold tabular-nums">{money(data.total)}</td>
               </tr>
               {data.withholdingEnabled && (
-                <>
-                  <tr><td className="py-1 text-[#666]">{whtLabel(data.withholdingRate)}</td><td className="py-1 text-right tabular-nums">−{money(data.withholdingAmount)}</td></tr>
-                  <tr className="border-t-2" style={{ borderColor: accent }}>
-                    <td className="py-1.5 font-bold">Net payable {data.currency}</td>
-                    <td className="py-1.5 text-right font-bold tabular-nums">{money(data.netPayable)}</td>
-                  </tr>
-                </>
+                <tr><td className="py-1 text-[#666]">{whtLabel(data.withholdingRate)} · over-and-above</td><td className="py-1 text-right tabular-nums">{money(data.withholdingAmount)}</td></tr>
               )}
               {data.amountPaid > 0 && (
                 <>
@@ -125,7 +119,7 @@ export function ProfessionalTemplate({ data }: { data: DocData }) {
 
         {data.withholdingEnabled && (
           <p className="mt-2 text-right text-[9px] italic text-[#888]">
-            Withholding tax is deducted at source by the client and remitted to their tax authority.
+            Withholding tax ({Math.round(data.withholdingRate)}%) is borne and remitted separately by the client to the tax authority, over and above the invoice value. The invoice amount is payable in full.
           </p>
         )}
 

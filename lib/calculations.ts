@@ -37,8 +37,9 @@ export interface CalcResult {
  * - Invoice discount (percent or fixed) reduces the subtotal → taxable base.
  * - VAT (added) is charged on the taxable base at the document VAT rate.
  *   For services exported to a non-UAE client this is 0% (zero-rated).
- * - Withholding tax (deducted) is computed on the taxable base (service value,
- *   ex-VAT) and subtracted from the total to give the net the client pays.
+ * - Withholding tax is DISCLOSED (computed on the taxable base) but borne and
+ *   remitted separately by the client to the tax authority, over and above the
+ *   invoice value — so the full invoice total remains payable to us.
  *   Note: UAE withholding is 0%; a non-zero rate here reflects the foreign
  *   client's domestic withholding (e.g. Egypt) net of any treaty relief.
  */
@@ -70,7 +71,8 @@ export function calculateTotals(input: CalcInput): CalcResult {
     ? round2((taxableBase * input.withholdingRate) / 100)
     : 0;
 
-  const netPayable = round2(total - withholdingAmount);
+  // WHT is over-and-above (borne by the client) — the full total stays payable.
+  const netPayable = total;
 
   return {
     lineTotals,

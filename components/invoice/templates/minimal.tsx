@@ -115,13 +115,9 @@ export function MinimalTemplate({ data }: { data: DocData }) {
             </div>
             {data.withholdingEnabled && (
               <>
-                <Line label={whtLabel(data.withholdingRate)} value={<>−{money(data.withholdingAmount)}</>} />
-                <div className="flex items-center justify-between border-t pt-2 font-semibold text-[#222]">
-                  <span className="text-[10px] uppercase tracking-[0.14em]">Net payable {data.currency}</span>
-                  <span className="tabular-nums">{money(data.netPayable)}</span>
-                </div>
+                <Line label={`${whtLabel(data.withholdingRate)} · over-and-above`} value={money(data.withholdingAmount)} />
                 <p className="pt-1 text-[8px] italic leading-snug text-[#aaa]">
-                  Withholding tax is deducted at source by the client and remitted to their tax authority.
+                  Withholding tax ({Math.round(data.withholdingRate)}%) is borne and remitted separately by the client to the tax authority, over and above the invoice value. The invoice amount is payable in full.
                 </p>
               </>
             )}
