@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: binarylabs-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: binarylabs
+      POSTGRES_PASSWORD: binarylabs
+      POSTGRES_DB: binarylabs
+    ports:
+      - "5433:5432"
+    volumes:
+      - binarylabs_pgdata:/var/lib/postgresql/data
+
+volumes:
+  binarylabs_pgdata:
