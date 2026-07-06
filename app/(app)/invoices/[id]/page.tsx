@@ -78,18 +78,12 @@ export default async function InvoiceDetailPage({
                 <dd className="font-semibold tabular">{formatMoney(total, invoice.currency)}</dd>
               </div>
               {invoice.withholdingEnabled && (
-                <>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">
-                      Withholding ({toNumber(invoice.withholdingRate)}%)
-                    </dt>
-                    <dd className="tabular">−{formatMoney(withholding, invoice.currency)}</dd>
-                  </div>
-                  <div className="flex justify-between font-medium">
-                    <dt className="text-muted-foreground">Net payable</dt>
-                    <dd className="tabular">{formatMoney(net, invoice.currency)}</dd>
-                  </div>
-                </>
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">
+                    Withholding ({toNumber(invoice.withholdingRate)}%) · over-and-above
+                  </dt>
+                  <dd className="tabular">{formatMoney(withholding, invoice.currency)}</dd>
+                </div>
               )}
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Paid</dt>

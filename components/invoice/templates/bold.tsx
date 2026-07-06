@@ -110,9 +110,8 @@ export function BoldTemplate({ data }: { data: DocData }) {
             </div>
             {data.withholdingEnabled && (
               <>
-                <div className="flex justify-between pt-1 text-[#666]"><span>{whtLabel(data.withholdingRate)}</span><span className="tabular-nums">−{money(data.withholdingAmount)}</span></div>
-                <div className="flex justify-between border-t pt-2 font-bold"><span>Net payable {data.currency}</span><span className="tabular-nums">{money(data.netPayable)}</span></div>
-                <p className="pt-1 text-[8px] italic leading-snug text-[#aaa]">Withholding tax is deducted at source by the client and remitted to their tax authority.</p>
+                <div className="flex justify-between pt-1 text-[#666]"><span>{whtLabel(data.withholdingRate)} · over-and-above</span><span className="tabular-nums">{money(data.withholdingAmount)}</span></div>
+                <p className="pt-1 text-[8px] italic leading-snug text-[#aaa]">Withholding tax ({Math.round(data.withholdingRate)}%) is borne and remitted separately by the client to the tax authority, over and above the invoice value. The invoice amount is payable in full.</p>
               </>
             )}
             {data.amountPaid > 0 && (

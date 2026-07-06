@@ -26,7 +26,7 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
   return (
     <Paper className="text-[10.5px] leading-relaxed" style={{ ...SANS, color: INK }}>
       {/* Header band */}
-      <div className="px-[16mm] pb-[10mm] pt-[12mm] text-white" style={{ backgroundColor: INK }}>
+      <div className="px-[16mm] pb-[7mm] pt-[9mm] text-white" style={{ backgroundColor: INK }}>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3.5">
             {c.logoUrl ? (
@@ -39,6 +39,11 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
               </div>
               {c.tradeName && (
                 <div className="mt-1.5 text-[9px] tracking-wide text-white/55">{c.legalName}</div>
+              )}
+              {c.arabicName && (
+                <div dir="rtl" className="mt-1 text-[11px] leading-tight text-white/70">
+                  {c.arabicName}
+                </div>
               )}
             </div>
           </div>
@@ -54,9 +59,9 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
       </div>
       <div className="h-[3px]" style={{ backgroundColor: accent }} />
 
-      <div className="flex-1 px-[16mm] py-[9mm]">
+      <div className="flex-1 px-[16mm] py-[7mm]">
         {/* Metadata strip */}
-        <div className="grid grid-cols-4 gap-6 border-b pb-6" style={{ borderColor: RULE }}>
+        <div className="grid grid-cols-4 gap-6 border-b pb-5" style={{ borderColor: RULE }}>
           <Meta label={data.dateLabel} value={data.dateValue} />
           <Meta label={data.dueLabel} value={data.dueValue} />
           <Meta label="Currency" value={data.currency} />
@@ -68,7 +73,7 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
         </div>
 
         {/* From / Bill to */}
-        <div className="mt-7 grid grid-cols-2 gap-12">
+        <div className="mt-6 grid grid-cols-2 gap-12">
           <Party accent={accent} label="From">
             <div className="text-[12px] font-semibold">{c.legalName}</div>
             <div className="mt-1.5 space-y-0.5" style={{ color: SUB }}>
@@ -97,7 +102,7 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
         </div>
 
         {/* Services table */}
-        <div className="mt-9">
+        <div className="mt-6">
           <SectionLabel accent={accent}>Services rendered</SectionLabel>
           <table className="mt-3 w-full border-collapse">
             <thead>
@@ -122,7 +127,7 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
             <tbody>
               {data.lines.map((l, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${RULE}` }}>
-                  <td className="py-3 pr-4 align-top">
+                  <td className="py-2 pr-4 align-top">
                     <div className="font-medium">{l.description}</div>
                     {l.discount > 0 && (
                       <div className="text-[8.5px]" style={{ color: FAINT }}>
@@ -130,9 +135,9 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
                       </div>
                     )}
                   </td>
-                  <td className="py-3 text-right align-top" style={MONO}>{l.quantity}</td>
-                  <td className="py-3 text-right align-top" style={{ color: SUB }}>{l.unit || "—"}</td>
-                  <td className="py-3 text-right align-top" style={MONO}>{money(l.unitPrice)}</td>
+                  <td className="py-2 text-right align-top" style={MONO}>{l.quantity}</td>
+                  <td className="py-2 text-right align-top" style={{ color: SUB }}>{l.unit || "—"}</td>
+                  <td className="py-2 text-right align-top" style={MONO}>{money(l.unitPrice)}</td>
                   <td className="py-3 text-right align-top font-semibold" style={MONO}>{money(l.lineTotal)}</td>
                 </tr>
               ))}
@@ -141,7 +146,7 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
         </div>
 
         {/* Totals */}
-        <div className="mt-6 flex justify-end">
+        <div className="mt-4 flex justify-end">
           <div className="w-[52%]">
             <TotalRow label="Subtotal" value={money(data.subtotal)} />
             {data.discountAmount > 0 && (
@@ -154,7 +159,7 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
               <TotalRow label={`Total (${data.currency})`} value={money(data.total)} strong />
             </div>
             {data.withholdingEnabled && (
-              <TotalRow label={whtLabel(data.withholdingRate)} value={<>−{money(data.withholdingAmount)}</>} />
+              <TotalRow label={whtLabel(data.withholdingRate)} value={money(data.withholdingAmount)} />
             )}
             {data.amountPaid > 0 && (
               <TotalRow label="Amount paid" value={<>−{money(data.amountPaid)}</>} />
@@ -166,7 +171,7 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
               style={{ backgroundColor: INK }}
             >
               <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/70">
-                {data.withholdingEnabled && data.amountPaid === 0 ? "Net payable" : "Amount due"} · {data.currency}
+                Amount due · {data.currency}
               </span>
               <span className="text-[15px] font-semibold" style={MONO}>
                 {money(data.amountDue)}
@@ -174,7 +179,9 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
             </div>
             {data.withholdingEnabled && (
               <p className="mt-2 text-right text-[8px] italic leading-snug" style={{ color: FAINT }}>
-                Withholding tax is deducted at source by the client and remitted to their tax authority.
+                Withholding tax ({Math.round(data.withholdingRate)}%) is borne and remitted
+                separately by the client to the tax authority, over and above the invoice
+                value. The invoice amount is payable in full.
               </p>
             )}
           </div>
@@ -182,9 +189,9 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
 
         {/* Payment instructions */}
         {(c.iban || c.bankName) && (
-          <div className="mt-9">
+          <div className="mt-6">
             <SectionLabel accent={accent}>Remittance details</SectionLabel>
-            <div className="mt-3 grid grid-cols-4 gap-x-8 gap-y-3 border-y py-4" style={{ borderColor: RULE }}>
+            <div className="mt-2.5 grid grid-cols-4 gap-x-8 gap-y-2.5 border-y py-3" style={{ borderColor: RULE }}>
               {c.bankName && <Field label="Bank" value={c.bankName} />}
               {c.accountName && <Field label="Account name" value={c.accountName} wide />}
               {c.iban && <Field label="IBAN" value={c.iban} mono />}
@@ -197,7 +204,7 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
 
         {/* Notes & terms */}
         {(data.notes || data.terms) && (
-          <div className="mt-7 grid grid-cols-2 gap-12">
+          <div className="mt-5 grid grid-cols-2 gap-12">
             {data.notes && (
               <div>
                 <SectionLabel accent={accent}>Notes</SectionLabel>
@@ -215,7 +222,7 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
       </div>
 
       {/* Footer */}
-      <div className="mt-auto flex items-end justify-between px-[16mm] py-[6mm]" style={{ borderTop: `2px solid ${INK}` }}>
+      <div className="mt-auto flex items-end justify-between px-[16mm] py-[5mm]" style={{ borderTop: `2px solid ${INK}` }}>
         <div className="text-[8.5px]" style={{ color: FAINT }}>
           <div className="font-semibold" style={{ color: INK }}>{c.legalName}</div>
           {c.corporateTaxTrn && <div style={MONO}>Corporate Tax TRN {c.corporateTaxTrn}</div>}
@@ -282,7 +289,7 @@ function TotalRow({
   strong?: boolean;
 }) {
   return (
-    <div className={`flex items-center justify-between py-1.5 ${strong ? "font-semibold" : ""}`}>
+    <div className={`flex items-center justify-between py-1 ${strong ? "font-semibold" : ""}`}>
       <span className="text-[10px]" style={{ color: strong ? INK : SUB }}>{label}</span>
       <span className="text-[11px]" style={{ ...MONO, color: INK }}>{value}</span>
     </div>
