@@ -91,6 +91,7 @@ export default async function DashboardPage() {
             sub="Awaiting payment"
             icon={Wallet}
             accent="primary"
+            delay={0}
           />
           <StatCard
             label="Collected"
@@ -98,6 +99,7 @@ export default async function DashboardPage() {
             sub="Total received"
             icon={BadgeCheck}
             accent="emerald"
+            delay={70}
           />
           <StatCard
             label="Overdue"
@@ -105,6 +107,7 @@ export default async function DashboardPage() {
             sub="Past due date"
             icon={AlertTriangle}
             accent="red"
+            delay={140}
           />
           <StatCard
             label="Invoices"
@@ -112,14 +115,15 @@ export default async function DashboardPage() {
             sub={`${draftCount} draft · ${clientCount} clients`}
             icon={FileText}
             accent="amber"
+            delay={210}
           />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <div className="animate-enter rounded-xl border bg-card p-5" style={{ animationDelay: "260ms" }}>
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h2 className="font-display text-lg font-bold tracking-tight">
+                <h2 className="font-display text-lg font-semibold tracking-tight">
                   Revenue
                 </h2>
                 <p className="text-xs text-muted-foreground">
@@ -130,9 +134,9 @@ export default async function DashboardPage() {
             <RevenueChart data={months} currency={currency} />
           </div>
 
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <div className="animate-enter rounded-xl border bg-card p-5" style={{ animationDelay: "320ms" }}>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-lg font-bold tracking-tight">
+              <h2 className="font-display text-lg font-semibold tracking-tight">
                 Recent invoices
               </h2>
               <Link

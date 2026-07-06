@@ -62,7 +62,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
             )}
             <Icon
               className={cn(
-                "size-[17px] shrink-0",
+                "size-[17px] shrink-0 transition-transform duration-200 group-hover:scale-110",
                 active ? "text-sidebar-primary" : "text-muted-foreground/80",
               )}
             />
@@ -153,9 +153,9 @@ export function AppShell({
         <div className="px-5 pb-5">
           <Link
             href="/dashboard"
-            className="flex items-center gap-2.5 text-sidebar-foreground"
+            className="group flex items-center gap-2.5 text-sidebar-foreground"
           >
-            <LogoMark className="size-[30px] text-sidebar-primary" />
+            <LogoMark className="size-[30px] transition-transform duration-300 group-hover:scale-105" />
             <div className="leading-none">
               <div className="font-display text-[15px] font-semibold tracking-tight">
                 Binary Labs

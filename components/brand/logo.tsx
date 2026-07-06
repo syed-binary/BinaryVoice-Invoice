@@ -1,6 +1,9 @@
 import { cn } from "@/lib/utils";
 
-/** Binary Labs monogram — a geometric "binary" mark (no logo asset exists). */
+/**
+ * Binary AI Labs brand tile — the "‹B›" monogram (brackets = code/AI, B = Binary)
+ * on a dark squircle. Self-contained so it reads well on light or dark surfaces.
+ */
 export function LogoMark({
   className,
   style,
@@ -10,19 +13,18 @@ export function LogoMark({
 }) {
   return (
     <svg
-      viewBox="0 0 32 32"
+      viewBox="0 0 180 180"
       className={cn("size-8", className)}
       style={style}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
+      role="img"
+      aria-label="Binary AI Labs"
     >
-      <rect width="32" height="32" rx="9" fill="currentColor" />
-      <g fill="var(--logo-fg, #fff)">
-        <rect x="8" y="8" width="6" height="6" rx="1.5" />
-        <rect x="18" y="8" width="6" height="6" rx="3" opacity="0.55" />
-        <rect x="8" y="18" width="6" height="6" rx="3" opacity="0.55" />
-        <rect x="18" y="18" width="6" height="6" rx="1.5" />
+      <rect x="2" y="2" width="176" height="176" rx="42" fill="#0a0a0a" stroke="rgba(255,255,255,0.12)" strokeWidth="2" />
+      <g transform="translate(8 50)">
+        <path d="M 28 10 L 10 40 L 28 70" stroke="#ededed" strokeWidth="2.4" strokeLinecap="square" strokeLinejoin="miter" transform="scale(1.04)" fill="none" />
+        <text x="80" y="57" textAnchor="middle" fill="#ededed" fontFamily="var(--font-plex-sans), 'SF Pro Display', system-ui, sans-serif" fontSize="50" fontWeight="600" letterSpacing="-0.02em" transform="scale(1.04)">B</text>
+        <path d="M 132 10 L 150 40 L 132 70" stroke="#ededed" strokeWidth="2.4" strokeLinecap="square" strokeLinejoin="miter" transform="scale(1.04)" fill="none" />
       </g>
     </svg>
   );
@@ -39,13 +41,13 @@ export function Logo({
 }) {
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
-      <LogoMark className={cn("text-primary", markClassName)} />
+      <LogoMark className={cn(markClassName)} />
       {!compact && (
         <div className="leading-none">
-          <div className="font-display text-[15px] font-bold tracking-tight">
+          <div className="font-display text-[15px] font-semibold tracking-tight">
             Binary Labs
           </div>
-          <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+          <div className="mt-1 text-[9.5px] uppercase tracking-[0.2em] text-muted-foreground">
             Invoicing
           </div>
         </div>
