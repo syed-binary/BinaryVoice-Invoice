@@ -1,8 +1,14 @@
 import type { SelectOption } from "@/components/ui/simple-select";
 
-export type TemplateId = "modern" | "minimal" | "professional" | "bold";
+export type TemplateId =
+  | "enterprise"
+  | "modern"
+  | "minimal"
+  | "professional"
+  | "bold";
 
 export const TEMPLATES: { id: TemplateId; name: string; description: string }[] = [
+  { id: "enterprise", name: "Enterprise", description: "IBM-grade consulting invoice — Plex type, black header, precise grid." },
   { id: "modern", name: "Modern", description: "Clean accent header with a soft, contemporary layout." },
   { id: "minimal", name: "Minimal", description: "Understated, typographic, lots of whitespace." },
   { id: "professional", name: "Professional", description: "Classic corporate structure with ruled tables." },

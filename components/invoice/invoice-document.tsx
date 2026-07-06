@@ -1,4 +1,5 @@
 import type { DocData } from "@/lib/document-data";
+import { EnterpriseTemplate } from "./templates/enterprise";
 import { ModernTemplate } from "./templates/modern";
 import { MinimalTemplate } from "./templates/minimal";
 import { ProfessionalTemplate } from "./templates/professional";
@@ -12,14 +13,17 @@ export function InvoiceDocument({
   templateId: string;
 }) {
   switch (templateId) {
+    case "enterprise":
+      return <EnterpriseTemplate data={data} />;
+    case "modern":
+      return <ModernTemplate data={data} />;
     case "minimal":
       return <MinimalTemplate data={data} />;
     case "professional":
       return <ProfessionalTemplate data={data} />;
     case "bold":
       return <BoldTemplate data={data} />;
-    case "modern":
     default:
-      return <ModernTemplate data={data} />;
+      return <EnterpriseTemplate data={data} />;
   }
 }
