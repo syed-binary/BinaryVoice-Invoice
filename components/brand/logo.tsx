@@ -1,11 +1,18 @@
 import { cn } from "@/lib/utils";
 
 /** Binary Labs monogram — a geometric "binary" mark (no logo asset exists). */
-export function LogoMark({ className }: { className?: string }) {
+export function LogoMark({
+  className,
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return (
     <svg
       viewBox="0 0 32 32"
       className={cn("size-8", className)}
+      style={style}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden

@@ -72,7 +72,7 @@ export function MinimalTemplate({ data }: { data: DocData }) {
                 <div key={i}>{l}</div>
               ))}
               {data.vatEnabled && c.vatTrn && <div>VAT TRN: {c.vatTrn}</div>}
-              {!data.vatEnabled && c.corporateTaxTrn && <div>TRN: {c.corporateTaxTrn}</div>}
+              {!data.vatEnabled && c.corporateTaxTrn && <div>Corporate Tax TRN: {c.corporateTaxTrn}</div>}
             </div>
           </div>
         </div>

@@ -36,7 +36,7 @@ export function BoldTemplate({ data }: { data: DocData }) {
           </div>
           {(data.vatEnabled ? c.vatTrn : c.corporateTaxTrn) && (
             <div className="mt-4 text-[9.5px] text-white/85">
-              {data.vatEnabled ? "VAT TRN" : "Tax TRN"}: {data.vatEnabled ? c.vatTrn : c.corporateTaxTrn}
+              {data.vatEnabled ? "VAT TRN" : "Corporate Tax TRN"}: {data.vatEnabled ? c.vatTrn : c.corporateTaxTrn}
             </div>
           )}
         </div>

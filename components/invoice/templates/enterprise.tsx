@@ -80,7 +80,8 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
               ))}
               {(data.vatEnabled ? c.vatTrn : c.corporateTaxTrn) && (
                 <div style={MONO} className="pt-1">
-                  {data.vatEnabled ? "VAT TRN" : "TRN"} {data.vatEnabled ? c.vatTrn : c.corporateTaxTrn}
+                  {data.vatEnabled ? "VAT TRN" : "Corporate Tax TRN"}{" "}
+                  {data.vatEnabled ? c.vatTrn : c.corporateTaxTrn}
                 </div>
               )}
             </div>

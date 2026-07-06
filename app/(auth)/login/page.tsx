@@ -30,40 +30,36 @@ export default function LoginPage() {
   return (
     <div className="grid min-h-dvh flex-1 lg:grid-cols-[1.05fr_1fr]">
       {/* Brand panel */}
-      <div className="relative hidden overflow-hidden bg-sidebar text-sidebar-foreground lg:flex lg:flex-col lg:justify-between p-12">
-        <div className="bg-grid absolute inset-0 opacity-60" />
+      <div className="relative hidden overflow-hidden p-12 text-white lg:flex lg:flex-col lg:justify-between" style={{ backgroundColor: "#0c0e13" }}>
         <div
-          className="absolute -right-40 -top-40 size-[32rem] rounded-full blur-3xl"
-          style={{ background: "radial-gradient(circle, oklch(0.55 0.2 274 / 0.55), transparent 70%)" }}
+          className="absolute -bottom-40 -left-32 size-[36rem] rounded-full blur-[120px]"
+          style={{ background: "radial-gradient(circle, oklch(0.48 0.128 262 / 0.4), transparent 70%)" }}
         />
-        <div
-          className="absolute -bottom-52 -left-24 size-[34rem] rounded-full blur-3xl"
-          style={{ background: "radial-gradient(circle, oklch(0.6 0.16 200 / 0.35), transparent 70%)" }}
-        />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)", backgroundSize: "56px 56px" }} />
 
         <div className="relative flex items-center gap-2.5">
-          <LogoMark className="size-9 text-sidebar-primary" />
-          <span className="font-display text-lg font-bold tracking-tight">
+          <LogoMark className="size-8" style={{ color: "var(--primary)", "--logo-fg": "#0c0e13" } as React.CSSProperties} />
+          <span className="font-display text-[17px] font-semibold tracking-tight">
             Binary Labs
           </span>
         </div>
 
         <div className="relative max-w-md">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.16em] text-sidebar-foreground/70">
-            <ShieldCheck className="size-3.5" /> FTA-ready invoicing
+          <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-white/60">
+            <ShieldCheck className="size-3.5" /> UAE-ready invoicing
           </p>
-          <h1 className="font-display text-4xl font-bold leading-[1.05] tracking-tight text-white xl:text-5xl">
-            Beautiful invoices, built for the UAE.
+          <h1 className="font-display text-[2.6rem] font-semibold leading-[1.08] tracking-tight text-white">
+            Invoicing, refined for the enterprise.
           </h1>
-          <p className="mt-5 text-base leading-relaxed text-sidebar-foreground/70">
-            Create, send and track VAT-ready invoices and estimates — clients,
-            custom fields and stunning templates, all in one place.
+          <p className="mt-5 text-[15px] leading-relaxed text-white/55">
+            Resource-based billing, VAT &amp; withholding, and beautiful
+            enterprise-grade documents — precise, sober, effortless.
           </p>
         </div>
 
-        <div className="relative flex items-center gap-6 text-xs text-sidebar-foreground/60">
+        <div className="relative flex items-center gap-4 text-[11px] text-white/40">
           <span>Binary AI Labs and Technologies L.L.C-FZ</span>
-          <span className="h-1 w-1 rounded-full bg-current" />
+          <span className="h-0.5 w-0.5 rounded-full bg-current" />
           <span>Meydan Free Zone, Dubai</span>
         </div>
       </div>

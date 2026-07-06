@@ -59,7 +59,7 @@ export function ProfessionalTemplate({ data }: { data: DocData }) {
             <div className="space-y-1 text-[#555]">
               <div className="flex justify-between"><span>Currency</span><span className="font-semibold">{data.currency}</span></div>
               {data.vatEnabled && c.vatTrn && <div className="flex justify-between"><span>VAT TRN</span><span className="font-semibold">{c.vatTrn}</span></div>}
-              {!data.vatEnabled && c.corporateTaxTrn && <div className="flex justify-between"><span>Tax TRN</span><span className="font-semibold">{c.corporateTaxTrn}</span></div>}
+              {!data.vatEnabled && c.corporateTaxTrn && <div className="flex justify-between"><span>Corporate Tax TRN</span><span className="font-semibold">{c.corporateTaxTrn}</span></div>}
               {data.customFields.map((f) => (
                 <div key={f.label} className="flex justify-between"><span>{f.label}</span><span className="font-semibold">{f.value}</span></div>
               ))}

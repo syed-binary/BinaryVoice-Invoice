@@ -73,7 +73,7 @@ export function ModernTemplate({ data }: { data: DocData }) {
             {companyAddressLines(c).join(", ")}
           </div>
           {c.corporateTaxTrn && !data.vatEnabled && (
-            <div><span className="font-semibold text-[#1a1a2e]">Tax TRN: </span>{c.corporateTaxTrn}</div>
+            <div><span className="font-semibold text-[#1a1a2e]">Corporate Tax TRN: </span>{c.corporateTaxTrn}</div>
           )}
           {data.vatEnabled && c.vatTrn && (
             <div><span className="font-semibold text-[#1a1a2e]">VAT TRN: </span>{c.vatTrn}</div>
