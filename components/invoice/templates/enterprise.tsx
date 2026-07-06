@@ -137,12 +137,20 @@ export function EnterpriseTemplate({ data }: { data: DocData }) {
                   </td>
                   <td className="py-2 text-right align-top" style={MONO}>{l.quantity}</td>
                   <td className="py-2 text-right align-top" style={{ color: SUB }}>{l.unit || "—"}</td>
-                  <td className="py-2 text-right align-top" style={MONO}>{money(l.unitPrice)}</td>
-                  <td className="py-3 text-right align-top font-semibold" style={MONO}>{money(l.lineTotal)}</td>
+                  <td className="py-2 text-right align-top" style={MONO}>
+                    {money(l.unitPrice)}
+                    {l.unit === "Nos" && <span style={{ color: FAINT }}> / month</span>}
+                  </td>
+                  <td className="py-2 text-right align-top font-semibold" style={MONO}>{money(l.lineTotal)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {data.lines.some((l) => l.unit === "Nos") && (
+            <p className="mt-2 text-[8px] italic" style={{ color: FAINT }}>
+              Rates are per resource, per month.
+            </p>
+          )}
         </div>
 
         {/* Totals */}
