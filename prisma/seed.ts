@@ -42,7 +42,7 @@ async function main() {
     baseCurrency: "AED",
     invoicePrefix: "BL",
     estimatePrefix: "EST",
-    defaultTemplate: "modern",
+    defaultTemplate: "enterprise",
     accentColor: "#4f46e5",
     defaultNotes: "Thank you for your business.",
     defaultTerms:
