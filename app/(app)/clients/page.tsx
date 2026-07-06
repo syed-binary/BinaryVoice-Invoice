@@ -66,7 +66,7 @@ export default async function ClientsPage({
               <Link
                 key={c.id}
                 href={`/clients/${c.id}`}
-                className="group rounded-xl border bg-card p-4 shadow-sm transition-colors hover:border-primary/40 hover:bg-accent/40"
+                className="group hover-lift rounded-xl border bg-card p-4 hover:bg-accent/40"
               >
                 <div className="flex items-start justify-between">
                   <div className="min-w-0">

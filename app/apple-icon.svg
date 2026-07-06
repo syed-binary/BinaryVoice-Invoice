@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180" role="img" aria-label="Binary AI Labs">
+  <rect width="180" height="180" fill="#0a0a0a"/>
+  <g transform="translate(8 50)">
+    <path d="M 28 10 L 10 40 L 28 70" stroke="#ededed" stroke-width="2.4" stroke-linecap="square" stroke-linejoin="miter" transform="scale(1.04)" fill="none"/>
+    <text x="80" y="57" text-anchor="middle" fill="#ededed" font-family="'SF Pro Display', system-ui, sans-serif" font-size="50" font-weight="600" letter-spacing="-0.02em" transform="scale(1.04)">B</text>
+    <path d="M 132 10 L 150 40 L 132 70" stroke="#ededed" stroke-width="2.4" stroke-linecap="square" stroke-linejoin="miter" transform="scale(1.04)" fill="none"/>
+  </g>
+</svg>

@@ -38,7 +38,7 @@ export default function LoginPage() {
         <div className="pointer-events-none absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)", backgroundSize: "56px 56px" }} />
 
         <div className="relative flex items-center gap-2.5">
-          <LogoMark className="size-8" style={{ color: "var(--primary)", "--logo-fg": "#0c0e13" } as React.CSSProperties} />
+          <LogoMark className="size-9" />
           <span className="font-display text-[17px] font-semibold tracking-tight">
             Binary Labs
           </span>
@@ -66,7 +66,7 @@ export default function LoginPage() {
 
       {/* Form panel */}
       <div className="flex flex-1 items-center justify-center p-6 sm:p-10">
-        <div className="w-full max-w-sm">
+        <div className="animate-enter w-full max-w-sm">
           <div className="mb-8 lg:hidden">
             <Logo />
           </div>
