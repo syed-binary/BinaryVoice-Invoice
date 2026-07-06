@@ -10,14 +10,14 @@ export function PageHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="border-b bg-card/50">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+    <div className="border-b border-border bg-card">
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <div className="min-w-0">
-          <h1 className="font-display text-2xl font-bold tracking-tight">
+          <h1 className="font-display text-[21px] font-semibold tracking-tight">
             {title}
           </h1>
           {description && (
-            <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+            <p className="mt-0.5 text-[13px] text-muted-foreground">{description}</p>
           )}
         </div>
         {children && (

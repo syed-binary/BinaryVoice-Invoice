@@ -40,7 +40,7 @@ const NAV = [
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <nav className="flex flex-1 flex-col gap-1 px-3">
+    <nav className="flex flex-1 flex-col gap-0.5 px-3">
       {NAV.map((item) => {
         const active =
           pathname === item.href || pathname.startsWith(item.href + "/");
@@ -51,13 +51,21 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
             href={item.href}
             onClick={onNavigate}
             className={cn(
-              "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+              "group relative flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium transition-colors",
               active
-                ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                ? "bg-sidebar-accent text-foreground"
+                : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
             )}
           >
-            <Icon className="size-[18px] shrink-0" />
+            {active && (
+              <span className="absolute inset-y-[5px] left-0 w-[3px] rounded-full bg-sidebar-primary" />
+            )}
+            <Icon
+              className={cn(
+                "size-[17px] shrink-0",
+                active ? "text-sidebar-primary" : "text-muted-foreground/80",
+              )}
+            />
             {item.label}
           </Link>
         );
@@ -141,30 +149,35 @@ export function AppShell({
   return (
     <div className="flex min-h-dvh flex-1">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col bg-sidebar py-5 lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar py-5 lg:flex">
         <div className="px-5 pb-5">
           <Link
             href="/dashboard"
             className="flex items-center gap-2.5 text-sidebar-foreground"
           >
-            <LogoMark className="size-8 text-sidebar-primary" />
+            <LogoMark className="size-[30px] text-sidebar-primary" />
             <div className="leading-none">
-              <div className="font-display text-[15px] font-bold tracking-tight">
+              <div className="font-display text-[15px] font-semibold tracking-tight">
                 Binary Labs
               </div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/50">
+              <div className="mt-1 text-[9.5px] uppercase tracking-[0.2em] text-muted-foreground">
                 Invoicing
               </div>
             </div>
           </Link>
         </div>
-        <div className="px-3 pb-3">
+        <div className="px-3 pb-4">
           <Button
             render={<Link href="/invoices/new" />}
-            className="h-10 w-full gap-2 bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
+            className="h-9 w-full gap-2 bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
           >
             <Plus className="size-4" /> New invoice
           </Button>
+        </div>
+        <div className="px-4 pb-2">
+          <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground/70">
+            Menu
+          </span>
         </div>
         <NavLinks />
         <div className="mt-auto border-t border-sidebar-border px-3 pt-3">
