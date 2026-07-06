@@ -102,7 +102,7 @@ export function ModernTemplate({ data }: { data: DocData }) {
                 <td className="px-3 py-2.5 text-right align-top tabular-nums">{l.quantity}</td>
                 <td className="px-3 py-2.5 text-right align-top tabular-nums">
                   {money(l.unitPrice)}
-                  {l.unit && <span className="text-[#888]"> / {l.unit}</span>}
+                  {l.unit && <span className="text-[#888]"> / {l.unit === "Nos" ? "month" : l.unit}</span>}
                 </td>
                 <td className="px-3 py-2.5 text-right align-top font-semibold tabular-nums">{money(l.lineTotal)}</td>
               </tr>

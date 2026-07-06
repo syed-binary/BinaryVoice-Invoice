@@ -58,7 +58,7 @@ export type EditorInvoice = {
 let counter = 0;
 const uid = () => `l${counter++}`;
 const blankLine = (): Line => ({
-  key: uid(), itemId: null, description: "", quantity: 1, unitPrice: 0, unit: "month", discount: 0,
+  key: uid(), itemId: null, description: "", quantity: 1, unitPrice: 0, unit: "Nos", discount: 0,
 });
 
 export function InvoiceEditor({
@@ -167,7 +167,7 @@ export function InvoiceEditor({
         description: item.name + (item.description ? ` — ${item.description}` : ""),
         quantity: 1,
         unitPrice: toNumber(item.unitPrice),
-        unit: item.unit ?? "month",
+        unit: item.unit ?? "Nos",
         discount: 0,
       },
     ]);
@@ -277,7 +277,7 @@ export function InvoiceEditor({
                   <NumCell label="Rate" value={line.unitPrice} onChange={(n) => updateLine(line.key, { unitPrice: n })} />
                   <div className="flex items-center gap-2 sm:block">
                     <span className="w-12 text-xs text-muted-foreground sm:hidden">Unit</span>
-                    <Input value={line.unit ?? ""} onChange={(e) => updateLine(line.key, { unit: e.target.value || null })} placeholder="month" className="h-9 flex-1 sm:w-full" />
+                    <Input value={line.unit ?? ""} onChange={(e) => updateLine(line.key, { unit: e.target.value || null })} placeholder="Nos" className="h-9 flex-1 sm:w-full" />
                   </div>
                   <div className="flex items-center justify-between sm:justify-end">
                     <span className="text-xs text-muted-foreground sm:hidden">Amount</span>

@@ -94,7 +94,7 @@ export function MinimalTemplate({ data }: { data: DocData }) {
                 <td className="py-3 text-right align-top tabular-nums">{l.quantity}</td>
                 <td className="py-3 text-right align-top tabular-nums">
                   {money(l.unitPrice)}
-                  {l.unit && <span className="text-[#999]"> / {l.unit}</span>}
+                  {l.unit && <span className="text-[#999]"> / {l.unit === "Nos" ? "month" : l.unit}</span>}
                 </td>
                 <td className="py-3 text-right align-top tabular-nums">{money(l.lineTotal)}</td>
               </tr>

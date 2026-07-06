@@ -86,7 +86,7 @@ export function ProfessionalTemplate({ data }: { data: DocData }) {
                 <td className="border border-[#e6e6e6] px-3 py-2 text-right tabular-nums">{l.quantity}</td>
                 <td className="border border-[#e6e6e6] px-3 py-2 text-right tabular-nums">
                   {money(l.unitPrice)}
-                  {l.unit && <span className="text-[#999]"> / {l.unit}</span>}
+                  {l.unit && <span className="text-[#999]"> / {l.unit === "Nos" ? "month" : l.unit}</span>}
                 </td>
                 <td className="border border-[#e6e6e6] px-3 py-2 text-right font-semibold tabular-nums">{money(l.lineTotal)}</td>
               </tr>
