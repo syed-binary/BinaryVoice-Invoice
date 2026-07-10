@@ -15,6 +15,7 @@ import { deleteContractor } from "@/lib/actions/contractors/contractors";
 import { ConfirmButton } from "@/components/app/confirm-button";
 import { getTimeline } from "@/lib/crm";
 import { ActivityTimeline } from "@/components/crm/activity-timeline";
+import { PortalAccessButton } from "@/components/contractors/portal-access-button";
 import { prisma } from "@/lib/prisma";
 import { requireCapability } from "@/lib/permissions";
 import { getCompany } from "@/lib/company";
@@ -161,6 +162,12 @@ export default async function ContractorDetailPage({
               <p className="whitespace-pre-line text-sm">{contractor.notes}</p>
             </div>
           )}
+
+          <PortalAccessButton
+            contractorId={id}
+            hasAccess={!!contractor.userId}
+            email={contractor.email}
+          />
 
           <div className="rounded-xl border bg-card p-5 shadow-sm">
             <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Activity</h3>

@@ -40,6 +40,12 @@ In-house invoicing app (single company, multi-user). Next.js 16 App Router + Typ
 - `Activity` is a polymorphic timeline (`entityType` DEAL/CLIENT/CONTRACTOR/CONTRACT) — reuse `ActivityTimeline` + `getTimeline()` (`lib/crm.ts`) on any detail page; TASK activities have due dates and completion.
 - `Contact` = persons under a Client (one `isPrimary` enforced in the action). CRM uses `clients:*` capabilities (MEMBER has them).
 
+## Portals (Phase 4)
+
+- **Contractor portal** at `(portal)/portal/*` — role CONTRACTOR is path-gated there by `auth.config.ts`; `requirePortalContractor()` (lib/session.ts) resolves the Contractor by `userId` per request. Grant/reset access from the contractor detail page (creates a `User` role CONTRACTOR with the contractor's email). Portal actions live in `lib/actions/portal.ts` and must scope every query by `contractor.id`.
+- **API routes are exempt from the portal path redirect** (`!path.startsWith("/api")` in auth.config) — they authorize themselves; `/api/files` additionally allows CONTRACTOR access to their own `entityId` only.
+- **Public estimate acceptance**: `Estimate.publicToken` → `/estimate/[token]` (proxy-excluded, like `/sign/`). "Copy client link" on the estimate page mints the token; accept/decline is token-authed, audited, and notifies staff.
+
 ## Where things are
 
 - `lib/calculations.ts` — the single source of truth for totals (subtotal → invoice discount → per-line VAT). Used by editors (live) and server actions (persisted). Keep them in sync.

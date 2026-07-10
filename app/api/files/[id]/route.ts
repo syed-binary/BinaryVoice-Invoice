@@ -19,10 +19,17 @@ export async function GET(
   if (!doc || doc.archived) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  if (
-    !can(session.user.role ?? "MEMBER", documentCapability(doc.entityType, "read"))
-  ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const role = session.user.role ?? "MEMBER";
+  if (!can(role, documentCapability(doc.entityType, "read"))) {
+    // Portal contractors may read documents attached to their own record.
+    const own =
+      role === "CONTRACTOR" &&
+      doc.entityType === "CONTRACTOR" &&
+      (await prisma.contractor.findUnique({ where: { userId: session.user.id } }))
+        ?.id === doc.entityId;
+    if (!own) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
 
   let data: Buffer;

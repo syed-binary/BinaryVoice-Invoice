@@ -45,8 +45,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid entity or kind" }, { status: 400 });
   }
   const entity = entityType as DocumentEntity;
-  if (!can(session.user.role ?? "MEMBER", documentCapability(entity, "write"))) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const role = session.user.role ?? "MEMBER";
+  if (!can(role, documentCapability(entity, "write"))) {
+    // Portal contractors may upload to their OWN compliance vault only.
+    const own =
+      role === "CONTRACTOR" &&
+      entity === "CONTRACTOR" &&
+      (await prisma.contractor.findUnique({ where: { userId: session.user.id } }))
+        ?.id === entityId;
+    if (!own) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
   if (!ALLOWED.includes(file.type)) {
     return NextResponse.json(

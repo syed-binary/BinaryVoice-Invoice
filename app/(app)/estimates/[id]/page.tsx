@@ -10,6 +10,7 @@ import { formatDate } from "@/lib/format";
 import { PageHeader, PageBody } from "@/components/app/page-header";
 import { InvoiceDocument } from "@/components/invoice/invoice-document";
 import { EstimateActions } from "@/components/estimates/estimate-actions";
+import { ShareLinkButton } from "@/components/estimates/share-link-button";
 import { EstimateStatusPill } from "@/components/app/status-pill";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,7 @@ export default async function EstimateDetailPage({
   return (
     <>
       <PageHeader title={estimate.number} description={estimate.client.displayName}>
+        <ShareLinkButton estimateId={estimate.id} />
         <EstimateActions id={estimate.id} status={estimate.status} converted={!!estimate.invoice} />
       </PageHeader>
 
