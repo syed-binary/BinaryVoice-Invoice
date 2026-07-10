@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import type { Contractor } from "@prisma/client";
 import { saveContractor, type ContractorInput } from "@/lib/actions/contractors/contractors";
 import { CURRENCIES } from "@/lib/currencies";
+import { COUNTRIES } from "@/lib/countries";
 import { toNumber } from "@/lib/money";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -123,7 +124,17 @@ export function ContractorForm({ contractor }: { contractor?: Contractor | null 
           </div>
           <div className="space-y-1.5">
             <Label>Country *</Label>
-            <Input value={form.country} onChange={(e) => set({ country: e.target.value })} placeholder="e.g. India, United Kingdom" />
+            <Input
+              value={form.country}
+              onChange={(e) => set({ country: e.target.value })}
+              placeholder="e.g. India, United Kingdom"
+              list="country-suggestions"
+            />
+            <datalist id="country-suggestions">
+              {COUNTRIES.map((c) => (
+                <option key={c} value={c} />
+              ))}
+            </datalist>
           </div>
           <div className="space-y-1.5">
             <Label>Billing entity (if any)</Label>
@@ -144,7 +155,12 @@ export function ContractorForm({ contractor }: { contractor?: Contractor | null 
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label>Tax residency</Label>
-            <Input value={form.taxResidency} onChange={(e) => set({ taxResidency: e.target.value })} placeholder="Country of tax residence" />
+            <Input
+              value={form.taxResidency}
+              onChange={(e) => set({ taxResidency: e.target.value })}
+              placeholder="Country of tax residence"
+              list="country-suggestions"
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Tax ID (PAN / UTR / TRN …)</Label>

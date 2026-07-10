@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireCapability } from "@/lib/permissions";
@@ -86,20 +87,40 @@ export async function setContractorArchived(id: string, archived: boolean) {
   revalidatePath(`/contractors/${id}`);
 }
 
-export async function deleteContractor(id: string): Promise<ContractorResult> {
+/**
+ * Delete a contractor. Mirrors deleteClient: with history (engagements,
+ * payables, payouts or contracts) the record is archived instead of
+ * destroyed, so paid/signed records keep their references.
+ */
+export async function deleteContractor(id: string) {
   const user = await requireCapability("contractors:write");
-  const counts = await prisma.contractor.findUnique({
+  const contractor = await prisma.contractor.findUnique({
     where: { id },
-    include: { _count: { select: { engagements: true, payables: true } } },
+    include: {
+      _count: {
+        select: { engagements: true, payables: true, payouts: true, contracts: true },
+      },
+    },
   });
-  if (!counts) return { error: "Contractor not found" };
-  if (counts._count.engagements > 0 || counts._count.payables > 0) {
-    return {
-      error: "Contractor has engagements or payables — archive instead.",
-    };
+  if (!contractor) return;
+
+  const hasHistory =
+    contractor._count.engagements > 0 ||
+    contractor._count.payables > 0 ||
+    contractor._count.payouts > 0 ||
+    contractor._count.contracts > 0;
+
+  if (hasHistory) {
+    await prisma.contractor.update({ where: { id }, data: { archived: true } });
+    await audit(user, "contractor.archive", "Contractor", id, {
+      name: contractor.name,
+    });
+  } else {
+    await prisma.contractor.delete({ where: { id } });
+    await audit(user, "contractor.delete", "Contractor", id, {
+      name: contractor.name,
+    });
   }
-  await prisma.contractor.delete({ where: { id } });
-  await audit(user, "contractor.delete", "Contractor", id, { name: counts.name });
   revalidatePath("/contractors");
-  return {};
+  redirect("/contractors");
 }
