@@ -25,6 +25,14 @@ In-house invoicing app (single company, multi-user). Next.js 16 App Router + Typ
 - **Numbering** — new document types use `lib/numbering.ts` `nextNumber(tx, key, prefix)` (NumberSequence). Invoices/estimates keep their CompanySettings counters.
 - **Cron** — job logic in `lib/jobs/*` (registry in `lib/jobs/index.ts`), triggered by host cron: `curl -X POST -H "x-cron-secret: $CRON_SECRET" localhost:3000/api/jobs/<name>`. Jobs: mark-overdue-invoices, document-expiry-alerts, fx-refresh. `/api/jobs` is excluded from proxy auth.
 - **Tests** — `npm test` (vitest, scoped to `lib/**/*.test.ts` — pure modules only). Money/tax/FX math must be covered before shipping.
+- **Field encryption** — `lib/crypto.ts` (AES-256-GCM, `FIELD_ENCRYPTION_KEY` env, versioned `v1:` prefix). Encrypt contractor payout details and (later) HR identity numbers; never prefill decrypted values into forms.
+
+## Contractors module (Phase 1)
+
+- **Payables ≠ invoices.** `ContractorInvoice` mirrors Invoice but uses `lib/contractors/payable-calc.ts` (no VAT/WHT/discount) — never extend `calculateTotals` for payables. Status flow: RECEIVED → APPROVED → (SCHEDULED via PayoutRun) → PAID, or REJECTED; transitions are audited actions in `lib/actions/contractors/payables.ts`.
+- Payable numbers (`PAY-…`) and payout runs (`POR-…`) use `nextNumber()` sequences.
+- **Margin** — `lib/contractors/margin.ts` (pure, base-currency). Contractor detail shows rate-card margin (cost vs bill rate via FX); actual billed-vs-paid margin needs `LineItem.engagementId` linking (exists in schema, editor UI later).
+- Capability gating: nav filters via client-safe `lib/capabilities.ts`; server actions use `requireCapability` from `lib/permissions.ts` (same `can` map re-exported).
 
 ## Where things are
 
