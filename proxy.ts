@@ -8,8 +8,9 @@ const { auth } = NextAuth(authConfig);
 export default auth;
 
 export const config = {
-  // Protect everything except Next internals, auth API, static assets and uploads.
+  // Protect everything except Next internals, auth API, cron jobs (guarded by
+  // CRON_SECRET in the route itself), static assets and uploads.
   matcher: [
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|uploads|fonts|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)",
+    "/((?!api/auth|api/jobs|_next/static|_next/image|favicon.ico|uploads|fonts|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)",
   ],
 };

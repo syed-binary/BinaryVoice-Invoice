@@ -28,6 +28,9 @@
 /public/uploads/*
 !/public/uploads/.gitkeep
 
+# private document vault (passports, contracts, payslips) — never commit
+/var/files/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

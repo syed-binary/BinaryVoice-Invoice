@@ -27,6 +27,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/lib/actions/auth";
+import {
+  NotificationsBell,
+  type BellNotification,
+} from "@/components/app/notifications-bell";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -139,9 +143,11 @@ function UserMenu({
 
 export function AppShell({
   user,
+  notifications = [],
   children,
 }: {
   user: { name?: string | null; email?: string | null };
+  notifications?: BellNotification[];
   children: React.ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -181,7 +187,12 @@ export function AppShell({
         </div>
         <NavLinks />
         <div className="mt-auto border-t border-sidebar-border px-3 pt-3">
-          <UserMenu user={user} />
+          <div className="flex items-center gap-1">
+            <div className="min-w-0 flex-1">
+              <UserMenu user={user} />
+            </div>
+            <NotificationsBell notifications={notifications} />
+          </div>
         </div>
       </aside>
 
@@ -219,7 +230,7 @@ export function AppShell({
             </SheetContent>
           </Sheet>
           <Logo compact />
-          <div className="w-9" />
+          <NotificationsBell notifications={notifications} />
         </header>
 
         <main className="flex-1">{children}</main>

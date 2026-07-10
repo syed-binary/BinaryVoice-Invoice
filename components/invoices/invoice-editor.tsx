@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import { Plus, Trash2, Loader2, Send, Save } from "lucide-react";
 import type { Client, CompanySettings, Item } from "@prisma/client";
 import type { FieldDef } from "@/lib/custom-fields";
 import { saveInvoice, type InvoicePayload } from "@/lib/actions/invoices";
+import { fetchFxRate } from "@/lib/actions/fx";
 import { calculateTotals } from "@/lib/calculations";
 import { formatMoney, toNumber } from "@/lib/money";
 import { CURRENCIES } from "@/lib/currencies";
@@ -40,6 +41,7 @@ export type EditorInvoice = {
   issueDate: string;
   dueDate: string | null;
   currency: string;
+  fxRate: number;
   vatEnabled: boolean;
   vatRate: number;
   withholdingEnabled: boolean;
@@ -96,6 +98,22 @@ export function InvoiceEditor({
       })(),
   );
   const [currency, setCurrency] = useState(invoice?.currency ?? initialClient?.currency ?? company.baseCurrency);
+  const [fxRate, setFxRate] = useState(invoice?.fxRate ?? 1);
+  const isForeign = currency !== company.baseCurrency;
+
+  // Prefill the FX rate when currency or issue date changes (manual override
+  // stays possible — this only replaces the value on those changes). For the
+  // base currency the payload always sends 1, so no reset is needed.
+  useEffect(() => {
+    if (!isForeign) return;
+    let cancelled = false;
+    fetchFxRate(currency, issueDate).then((r) => {
+      if (!cancelled && r !== null) setFxRate(r);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [currency, issueDate, isForeign]);
   const [vatEnabled, setVatEnabled] = useState(invoice?.vatEnabled ?? company.vatEnabled);
   const [vatRate, setVatRate] = useState(
     invoice?.vatRate ??
@@ -184,6 +202,7 @@ export function InvoiceEditor({
       issueDate,
       dueDate: dueDate || null,
       currency,
+      fxRate: isForeign ? fxRate : 1,
       vatEnabled,
       vatRate,
       withholdingEnabled,
@@ -240,6 +259,26 @@ export function InvoiceEditor({
               <Label>Currency</Label>
               <SimpleSelect value={currency} onValueChange={setCurrency} options={CURRENCIES} />
             </div>
+            {isForeign && (
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="fxRate">
+                  Exchange rate · 1 {currency} = {fxRate || "…"} {company.baseCurrency}
+                </Label>
+                <Input
+                  id="fxRate"
+                  type="number"
+                  step="0.000001"
+                  min="0"
+                  value={fxRate || ""}
+                  onChange={(e) => setFxRate(Number(e.target.value))}
+                  className="max-w-48"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Used for {company.baseCurrency} reporting. Prefilled from ECB
+                  reference rates — override if your bank rate differs.
+                </p>
+              </div>
+            )}
             <div className="space-y-1.5">
               <Label htmlFor="issueDate">Issue date</Label>
               <Input id="issueDate" type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} />

@@ -15,6 +15,17 @@ In-house invoicing app (single company, multi-user). Next.js 16 App Router + Typ
 - **Prisma is pinned to v6** on purpose (v7 forces driver adapters + `prisma.config.ts` and drops `url` in schema). Don't bump to 7 without migrating.
 - `params`/`searchParams` are Promises — `await` them.
 
+## Platform foundations (Phase 0 of the company-OS roadmap)
+
+- **Permissions** — `lib/permissions.ts`: static role→capability map + `requireCapability(cap)` (wraps `requireUser`). Roles: ADMIN, FINANCE, HR, MEMBER, CONTRACTOR, EMPLOYEE (portal-only). Path-prefix gating by JWT role lives in `auth.config.ts` (`/hr`, `/payroll`, `/portal`). New server actions should call `requireCapability`, not bare `requireUser`.
+- **Private files** — `lib/storage.ts` writes to `var/files/` (gitignored, NOT `public/`); upload via POST `/api/files`, download via `/api/files/[id]` (capability-checked per `Document.entityType` — see `lib/documents.ts`). Logos still use the old `/api/upload` → `public/uploads`.
+- **Audit** — `lib/audit.ts` `audit(user, action, entityType, entityId, detail?, before?, after?)`; shallow diff + redaction denylist. Best-effort (never throws). Required for approvals/deletions/salary/contract-signing.
+- **Notifications** — `lib/notify.ts` `notify(userId, {...})` / `notifyRoles([...])` writes in-app rows (bell in app shell), `email: true` also sends via `lib/email.ts` (Nodemailer; logs to console when SMTP_* env unset).
+- **FX** — every money document stores `fxRate` (doc currency → `baseCurrency`) + `baseTotal`/`baseAmount`. Pure math in `lib/fx-core.ts` (ECB doesn't quote AED — pegged currencies route via USD), cached/service layer in `lib/fx.ts` (`getRate` = FxRate cache → frankfurter.app → null ⇒ manual). Dashboard sums base amounts. Editors prefill the rate via `fetchFxRate` action; keep `calculateTotals` currency-agnostic — convert once in the action.
+- **Numbering** — new document types use `lib/numbering.ts` `nextNumber(tx, key, prefix)` (NumberSequence). Invoices/estimates keep their CompanySettings counters.
+- **Cron** — job logic in `lib/jobs/*` (registry in `lib/jobs/index.ts`), triggered by host cron: `curl -X POST -H "x-cron-secret: $CRON_SECRET" localhost:3000/api/jobs/<name>`. Jobs: mark-overdue-invoices, document-expiry-alerts, fx-refresh. `/api/jobs` is excluded from proxy auth.
+- **Tests** — `npm test` (vitest, scoped to `lib/**/*.test.ts` — pure modules only). Money/tax/FX math must be covered before shipping.
+
 ## Where things are
 
 - `lib/calculations.ts` — the single source of truth for totals (subtotal → invoice discount → per-line VAT). Used by editors (live) and server actions (persisted). Keep them in sync.
