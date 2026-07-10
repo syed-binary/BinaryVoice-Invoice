@@ -31,7 +31,7 @@ export default async function DashboardPage() {
     }),
     prisma.payment.findMany({
       where: { date: { gte: startOfMonth(subMonths(new Date(), 5)) } },
-      select: { amount: true, date: true },
+      select: { baseAmount: true, date: true },
     }),
     prisma.client.count({ where: { archived: false } }),
   ]);
@@ -42,9 +42,12 @@ export default async function DashboardPage() {
   let paidTotal = 0;
   let draftCount = 0;
 
+  // All KPI sums are in base currency (AED): document amounts × their
+  // stored fxRate snapshot, so mixed-currency invoices aggregate correctly.
   for (const inv of invoices) {
-    const total = toNumber(inv.total);
-    const paid = toNumber(inv.amountPaid);
+    const rate = toNumber(inv.fxRate) || 1;
+    const total = toNumber(inv.total) * rate;
+    const paid = toNumber(inv.amountPaid) * rate;
     const due = total - paid;
     paidTotal += paid;
     if (inv.status === "DRAFT") draftCount++;
@@ -64,7 +67,7 @@ export default async function DashboardPage() {
   for (const p of payments) {
     const key = format(p.date, "yyyy-MM");
     const bucket = monthMap.get(key);
-    if (bucket) bucket.total += toNumber(p.amount);
+    if (bucket) bucket.total += toNumber(p.baseAmount);
   }
 
   const recent = invoices.slice(0, 6);

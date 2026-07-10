@@ -13,12 +13,36 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnLogin = nextUrl.pathname.startsWith("/login");
+      const role = (auth?.user as { role?: string } | undefined)?.role ?? "MEMBER";
+      const isPortalRole = role === "CONTRACTOR" || role === "EMPLOYEE";
 
       if (isOnLogin) {
-        if (isLoggedIn) return Response.redirect(new URL("/dashboard", nextUrl));
+        if (isLoggedIn)
+          return Response.redirect(
+            new URL(isPortalRole ? "/portal" : "/dashboard", nextUrl),
+          );
         return true;
       }
-      return isLoggedIn;
+      if (!isLoggedIn) return false;
+
+      // Edge-safe path-prefix gating from the JWT role only. Fine-grained
+      // capability checks live in lib/permissions.ts (node).
+      const path = nextUrl.pathname;
+      if (isPortalRole && !path.startsWith("/portal")) {
+        return Response.redirect(new URL("/portal", nextUrl));
+      }
+      if (!isPortalRole && path.startsWith("/portal")) {
+        return Response.redirect(new URL("/dashboard", nextUrl));
+      }
+      const hrOnly = path.startsWith("/hr");
+      const payrollOnly = path.startsWith("/payroll");
+      if (hrOnly && !["ADMIN", "FINANCE", "HR"].includes(role)) {
+        return Response.redirect(new URL("/dashboard", nextUrl));
+      }
+      if (payrollOnly && !["ADMIN", "FINANCE"].includes(role)) {
+        return Response.redirect(new URL("/dashboard", nextUrl));
+      }
+      return true;
     },
     jwt({ token, user }) {
       if (user) {

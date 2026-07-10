@@ -12,6 +12,7 @@ export function toEditorInvoice(
     issueDate: invoice.issueDate.toISOString().slice(0, 10),
     dueDate: invoice.dueDate ? invoice.dueDate.toISOString().slice(0, 10) : null,
     currency: invoice.currency,
+    fxRate: toNumber(invoice.fxRate),
     vatEnabled: invoice.vatEnabled,
     vatRate: toNumber(invoice.vatRate),
     withholdingEnabled: invoice.withholdingEnabled,

@@ -16,7 +16,11 @@ datasource db {
 
 enum Role {
   ADMIN
+  FINANCE
+  HR
   MEMBER
+  CONTRACTOR
+  EMPLOYEE
 }
 
 model User {
@@ -27,6 +31,8 @@ model User {
   role         Role     @default(MEMBER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  notifications Notification[]
 }
 
 // ---------------------------------------------------------------------------
@@ -178,6 +184,10 @@ model Invoice {
   netPayable    Decimal      @default(0) @db.Decimal(12, 2)
   amountPaid    Decimal      @default(0) @db.Decimal(12, 2)
 
+  // FX snapshot: document currency → base currency, frozen at issue.
+  fxRate    Decimal @default(1) @db.Decimal(18, 8)
+  baseTotal Decimal @default(0) @db.Decimal(12, 2)
+
   notes String?
   terms String?
 
@@ -256,6 +266,10 @@ model Estimate {
   total         Decimal      @default(0) @db.Decimal(12, 2)
   netPayable    Decimal      @default(0) @db.Decimal(12, 2)
 
+  // FX snapshot: document currency → base currency, frozen at issue.
+  fxRate    Decimal @default(1) @db.Decimal(18, 8)
+  baseTotal Decimal @default(0) @db.Decimal(12, 2)
+
   notes String?
   terms String?
 
@@ -306,6 +320,10 @@ model Payment {
   notes     String?
   createdAt DateTime @default(now())
 
+  // FX snapshot: payment currency → base currency, at payment date.
+  fxRate     Decimal @default(1) @db.Decimal(18, 8)
+  baseAmount Decimal @default(0) @db.Decimal(12, 2)
+
   @@index([invoiceId])
 }
 
@@ -337,4 +355,114 @@ model CustomFieldDefinition {
   createdAt DateTime          @default(now())
 
   @@unique([entity, key])
+}
+
+// ---------------------------------------------------------------------------
+// Foundations: numbering, documents, audit, notifications, FX
+// ---------------------------------------------------------------------------
+
+/// Generic atomic counter for document numbers (contracts, payables, payroll
+/// runs, …). Invoice/estimate counters remain on CompanySettings for now.
+model NumberSequence {
+  key     String @id
+  prefix  String
+  next    Int    @default(1)
+  padding Int    @default(4)
+}
+
+enum DocumentEntity {
+  CLIENT
+  CONTRACTOR
+  EMPLOYEE
+  CONTRACT
+  INVOICE
+  PAYABLE
+  COMPANY
+}
+
+enum DocumentKind {
+  GENERIC
+  CONTRACT_PDF
+  PASSPORT
+  VISA
+  EMIRATES_ID
+  LABOUR_CARD
+  W8BEN
+  KYC_ID
+  KYC_ADDRESS
+  INSURANCE
+  PAYSLIP
+  OTHER
+}
+
+/// Universal file attachment + compliance vault. Files live in private
+/// storage (lib/storage.ts) and are streamed through /api/files/[id] after a
+/// capability check — never served from public/.
+model Document {
+  id         String         @id @default(cuid())
+  entityType DocumentEntity
+  entityId   String
+  kind       DocumentKind   @default(GENERIC)
+
+  fileName   String
+  storageKey String @unique
+  mimeType   String
+  sizeBytes  Int
+
+  expiryDate   DateTime? // drives expiry alerts (visa, EID, passport, W-8BEN)
+  verifiedById String?
+  verifiedAt   DateTime?
+
+  uploadedById String
+  archived     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([expiryDate])
+}
+
+/// Append-only. Diffs are shallow and redacted (lib/audit.ts) — never store
+/// secrets, bank details or identity numbers here.
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  actorRole  String
+  action     String // e.g. "invoice.update", "payment.delete"
+  entityType String
+  entityId   String
+  diff       Json?
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String // e.g. "invoice.overdue", "document.expiring"
+  title     String
+  body      String?
+  href      String?
+  readAt    DateTime?
+  emailedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt])
+}
+
+/// Daily FX rate cache (document currency → base). Manual entries override;
+/// nightly fx-refresh job pulls ECB rates via frankfurter.app.
+model FxRate {
+  id     String   @id @default(cuid())
+  base   String
+  quote  String
+  rate   Decimal  @db.Decimal(18, 8)
+  date   DateTime @db.Date
+  source String   @default("MANUAL") // MANUAL | ECB
+
+  @@unique([base, quote, date])
 }

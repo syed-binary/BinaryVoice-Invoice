@@ -6,6 +6,9 @@ import type { Invoice, InvoiceStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { toNumber } from "@/lib/money";
+import { audit } from "@/lib/audit";
+import { getCompany } from "@/lib/company";
+import { getRate, toBase } from "@/lib/fx";
 
 function deriveStatus(invoice: Invoice, amountPaid: number): InvoiceStatus {
   if (invoice.status === "CANCELLED") return "CANCELLED";
@@ -46,13 +49,25 @@ export type PaymentInput = z.infer<typeof paymentSchema>;
 export type PaymentResult = { error?: string; ok?: boolean };
 
 export async function addPayment(input: PaymentInput): Promise<PaymentResult> {
-  await requireUser();
+  const user = await requireUser();
   const parsed = paymentSchema.safeParse(input);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid payment" };
   }
   const p = parsed.data;
-  await prisma.payment.create({
+
+  // FX at payment date; fall back to the invoice's issue-time rate.
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: p.invoiceId },
+    select: { currency: true, fxRate: true },
+  });
+  if (!invoice) return { error: "Invoice not found" };
+  const company = await getCompany();
+  const rate =
+    (await getRate(invoice.currency, company.baseCurrency, new Date(p.date))) ??
+    toNumber(invoice.fxRate);
+
+  const payment = await prisma.payment.create({
     data: {
       invoiceId: p.invoiceId,
       amount: p.amount,
@@ -60,7 +75,13 @@ export async function addPayment(input: PaymentInput): Promise<PaymentResult> {
       method: p.method ?? null,
       reference: p.reference ?? null,
       notes: p.notes ?? null,
+      fxRate: rate,
+      baseAmount: toBase(p.amount, rate),
     },
+  });
+  await audit(user, "payment.add", "Invoice", p.invoiceId, {
+    paymentId: payment.id,
+    amount: p.amount,
   });
   await recompute(p.invoiceId);
   revalidatePath(`/invoices/${p.invoiceId}`);
@@ -70,10 +91,14 @@ export async function addPayment(input: PaymentInput): Promise<PaymentResult> {
 }
 
 export async function deletePayment(paymentId: string) {
-  await requireUser();
+  const user = await requireUser();
   const payment = await prisma.payment.findUnique({ where: { id: paymentId } });
   if (!payment) return;
   await prisma.payment.delete({ where: { id: paymentId } });
+  await audit(user, "payment.delete", "Invoice", payment.invoiceId, {
+    paymentId,
+    amount: toNumber(payment.amount),
+  });
   await recompute(payment.invoiceId);
   revalidatePath(`/invoices/${payment.invoiceId}`);
   revalidatePath("/invoices");

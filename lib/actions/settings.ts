@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { audit } from "@/lib/audit";
 
 const str = (v: FormDataEntryValue | null) =>
   v === null || v === "" ? null : String(v).trim();
@@ -18,7 +19,7 @@ export async function updateCompanySettings(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  await requireUser();
+  const user = await requireUser();
 
   const legalName = str(formData.get("legalName"));
   const parsed = settingsSchema.safeParse({ legalName });
@@ -70,6 +71,8 @@ export async function updateCompanySettings(
       defaultDueDays: num("defaultDueDays", 14),
     },
   });
+
+  await audit(user, "settings.update", "CompanySettings", "company");
 
   revalidatePath("/settings");
   revalidatePath("/dashboard");
