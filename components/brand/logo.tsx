@@ -30,6 +30,10 @@ export function LogoMark({
   );
 }
 
+/**
+ * Falak (فَلَك) — "orbit", from Yā-Sīn 36:40: وَكُلٌّ فِي فَلَكٍ يَسْبَحُونَ
+ * "…and each, in an orbit, is swimming." The company OS by Binary AI.
+ */
 export function Logo({
   className,
   markClassName,
@@ -44,14 +48,35 @@ export function Logo({
       <LogoMark className={cn(markClassName)} />
       {!compact && (
         <div className="leading-none">
-          <div className="font-display text-[15px] font-semibold tracking-tight">
-            Binary Labs
+          <div className="flex items-baseline gap-1.5 font-display text-[15px] font-semibold tracking-tight">
+            <span lang="ar" dir="rtl" className="text-[17px] leading-none">فَلَك</span>
+            <span className="uppercase tracking-[0.08em]">Falak</span>
           </div>
-          <div className="mt-1 text-[9.5px] uppercase tracking-[0.2em] text-muted-foreground">
-            Invoicing
+          <div className="mt-1 text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
+            × Binary AI
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** The brand ayah — Yā-Sīn 36:40 — for login and public surfaces. */
+export function BrandAyah({
+  className,
+  translationClassName,
+}: {
+  className?: string;
+  translationClassName?: string;
+}) {
+  return (
+    <div className={cn("space-y-2", className)}>
+      <p lang="ar" dir="rtl" className="font-serif text-2xl leading-relaxed">
+        وَكُلٌّ فِي فَلَكٍ يَسْبَحُونَ
+      </p>
+      <p className={cn("text-xs italic", translationClassName)}>
+        “…and each, in an orbit, is swimming.” — Yā-Sīn 36:40
+      </p>
     </div>
   );
 }

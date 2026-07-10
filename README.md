@@ -1,6 +1,8 @@
-# Binary Labs — Invoicing
+# فَلَك FALAK × Binary AI
 
-An in-house invoicing app for **Binary AI Labs and Technologies L.L.C-FZ** (Meydan Free Zone, Dubai). Ultra-modern, UAE VAT-ready, with beautiful selectable invoice templates — built to be at par with Zoho Invoice / QuickBooks without the bloat.
+> وَكُلٌّ فِي فَلَكٍ يَسْبَحُونَ — *“…and each, in an orbit, is swimming.”* (Yā-Sīn 36:40)
+
+**Falak** is the company OS of **Binary AI Labs and Technologies L.L.C-FZ** (Meydan Free Zone, Dubai): invoicing & estimates, CRM, contracts with jurisdiction clause packs and e-sign, global contractor management with payables & payout runs, self-service portals — every client, contractor and dirham in one orbit. UAE VAT-ready, multi-currency with AED base reporting.
 
 Everything (frontend, backend, database access) lives in this one Next.js repo.
 

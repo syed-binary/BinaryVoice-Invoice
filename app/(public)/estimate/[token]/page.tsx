@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getCompany } from "@/lib/company";
 import { formatMoney } from "@/lib/money";
 import { formatDate } from "@/lib/format";
-import { Logo } from "@/components/brand/logo";
+import { Logo, BrandAyah } from "@/components/brand/logo";
 import { EstimateRespond } from "@/components/estimates/estimate-respond";
 import { CheckCircle2, ShieldX, XCircle } from "lucide-react";
 
@@ -134,6 +134,11 @@ export default async function PublicEstimatePage({
           <EstimateRespond token={token} />
         )}
       </div>
+
+      <BrandAyah
+        className="mt-10 text-center text-muted-foreground/70"
+        translationClassName="text-muted-foreground/50"
+      />
     </div>
   );
 }
