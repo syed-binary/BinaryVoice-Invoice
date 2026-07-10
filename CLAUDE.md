@@ -34,6 +34,12 @@ In-house invoicing app (single company, multi-user). Next.js 16 App Router + Typ
 - **Margin** — `lib/contractors/margin.ts` (pure, base-currency). Contractor detail shows rate-card margin (cost vs bill rate via FX); actual billed-vs-paid margin needs `LineItem.engagementId` linking (exists in schema, editor UI later).
 - Capability gating: nav filters via client-safe `lib/capabilities.ts`; server actions use `requireCapability` from `lib/permissions.ts` (same `can` map re-exported).
 
+## CRM (Phase 3)
+
+- `Deal` pipeline (LEAD→…→WON/LOST) at `/crm`; deals hold either `clientId` OR prospect fields — `convertProspectToClient` promotes. `Deal.estimateId` links the paper trail; `saveEstimate` accepts `dealId` (from `/estimates/new?deal=…`) and auto-advances early-stage deals to PROPOSAL.
+- `Activity` is a polymorphic timeline (`entityType` DEAL/CLIENT/CONTRACTOR/CONTRACT) — reuse `ActivityTimeline` + `getTimeline()` (`lib/crm.ts`) on any detail page; TASK activities have due dates and completion.
+- `Contact` = persons under a Client (one `isPrimary` enforced in the action). CRM uses `clients:*` capabilities (MEMBER has them).
+
 ## Where things are
 
 - `lib/calculations.ts` — the single source of truth for totals (subtotal → invoice discount → per-line VAT). Used by editors (live) and server actions (persisted). Keep them in sync.

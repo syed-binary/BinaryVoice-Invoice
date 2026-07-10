@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { deleteContractor } from "@/lib/actions/contractors/contractors";
 import { ConfirmButton } from "@/components/app/confirm-button";
+import { getTimeline } from "@/lib/crm";
+import { ActivityTimeline } from "@/components/crm/activity-timeline";
 import { prisma } from "@/lib/prisma";
 import { requireCapability } from "@/lib/permissions";
 import { getCompany } from "@/lib/company";
@@ -54,7 +56,7 @@ export default async function ContractorDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireCapability("contractors:read");
+  const user = await requireCapability("contractors:read");
   const { id } = await params;
 
   const [contractor, company] = await Promise.all([
@@ -72,10 +74,13 @@ export default async function ContractorDetailPage({
   ]);
   if (!contractor) notFound();
 
-  const documents = await prisma.document.findMany({
-    where: { entityType: "CONTRACTOR", entityId: id, archived: false },
-    orderBy: { createdAt: "desc" },
-  });
+  const [documents, timeline] = await Promise.all([
+    prisma.document.findMany({
+      where: { entityType: "CONTRACTOR", entityId: id, archived: false },
+      orderBy: { createdAt: "desc" },
+    }),
+    getTimeline("CONTRACTOR", id, user),
+  ]);
 
   // Rate-card margin per engagement, in base currency (actual billed-vs-paid
   // margin lands once invoice lines are linked to engagements).
@@ -156,6 +161,11 @@ export default async function ContractorDetailPage({
               <p className="whitespace-pre-line text-sm">{contractor.notes}</p>
             </div>
           )}
+
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
+            <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Activity</h3>
+            <ActivityTimeline entityType="CONTRACTOR" entityId={id} activities={timeline} />
+          </div>
 
           <ConfirmButton
             trigger={

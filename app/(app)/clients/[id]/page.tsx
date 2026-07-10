@@ -13,6 +13,10 @@ import {
 import { prisma } from "@/lib/prisma";
 import { getFieldDefs } from "@/lib/custom-fields";
 import { deleteClient } from "@/lib/actions/clients";
+import { requireUser } from "@/lib/session";
+import { getTimeline } from "@/lib/crm";
+import { ContactsCard } from "@/components/crm/contacts-card";
+import { ActivityTimeline } from "@/components/crm/activity-timeline";
 import { formatMoney } from "@/lib/money";
 import { formatDate } from "@/lib/format";
 import { PageHeader, PageBody } from "@/components/app/page-header";
@@ -29,15 +33,18 @@ export default async function ClientDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [client, fieldDefs] = await Promise.all([
+  const user = await requireUser();
+  const [client, fieldDefs, timeline] = await Promise.all([
     prisma.client.findUnique({
       where: { id },
       include: {
         invoices: { orderBy: { issueDate: "desc" } },
         estimates: { orderBy: { issueDate: "desc" } },
+        contacts: { where: { archived: false }, orderBy: [{ isPrimary: "desc" }, { name: "asc" }] },
       },
     }),
     getFieldDefs("CLIENT"),
+    getTimeline("CLIENT", id, user),
   ]);
   if (!client) notFound();
 
@@ -85,6 +92,18 @@ export default async function ClientDetailPage({
               </div>
             </dl>
           </div>
+
+          <ContactsCard
+            clientId={client.id}
+            contacts={client.contacts.map((c) => ({
+              id: c.id,
+              name: c.name,
+              email: c.email,
+              phone: c.phone,
+              title: c.title,
+              isPrimary: c.isPrimary,
+            }))}
+          />
 
           {(client.billingAddress || client.shippingAddress) && (
             <div className="rounded-xl border bg-card p-5 shadow-sm">
@@ -184,6 +203,11 @@ export default async function ClientDetailPage({
                 ))}
               </div>
             )}
+          </div>
+
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
+            <h2 className="mb-4 font-display text-lg font-bold tracking-tight">Activity</h2>
+            <ActivityTimeline entityType="CLIENT" entityId={client.id} activities={timeline} />
           </div>
 
           {client.estimates.length > 0 && (

@@ -37,6 +37,7 @@ const payloadSchema = z.object({
   templateId: z.string().default("modern"),
   accentColor: z.string().nullish(),
   markSent: z.boolean().optional(),
+  dealId: z.string().nullish(), // link back to a CRM deal on create
   customFields: z.record(z.string(), z.union([z.string(), z.number()])).default({}),
   lineItems: z.array(lineSchema).min(1, "Add at least one line item"),
 });
@@ -134,6 +135,24 @@ export async function saveEstimate(payload: EstimatePayload): Promise<SaveResult
       });
     });
     estimateId = created.id;
+
+    // Link back to the originating CRM deal and advance early-stage deals.
+    if (p.dealId) {
+      const deal = await prisma.deal.findUnique({ where: { id: p.dealId } });
+      if (deal && !deal.estimateId) {
+        await prisma.deal.update({
+          where: { id: p.dealId },
+          data: {
+            estimateId,
+            ...(deal.stage === "LEAD" || deal.stage === "QUALIFIED"
+              ? { stage: "PROPOSAL" }
+              : {}),
+          },
+        });
+        revalidatePath("/crm");
+        revalidatePath(`/crm/deals/${p.dealId}`);
+      }
+    }
   }
 
   revalidatePath("/estimates");

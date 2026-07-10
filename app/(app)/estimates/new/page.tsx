@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 export default async function NewEstimatePage({
   searchParams,
 }: {
-  searchParams: Promise<{ client?: string }>;
+  searchParams: Promise<{ client?: string; deal?: string }>;
 }) {
-  const { client } = await searchParams;
+  const { client, deal } = await searchParams;
   const [clients, items, company, fieldDefs] = await Promise.all([
     getEditorClients(),
     getEditorItems(),
@@ -23,7 +23,7 @@ export default async function NewEstimatePage({
     <>
       <PageHeader title="New estimate" description="Send a quote your client can accept." />
       <PageBody>
-        <EstimateEditor clients={clients} items={items} company={company} fieldDefs={fieldDefs} preselectClientId={client} />
+        <EstimateEditor clients={clients} items={items} company={company} fieldDefs={fieldDefs} preselectClientId={client} dealId={deal} />
       </PageBody>
     </>
   );

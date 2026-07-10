@@ -115,6 +115,8 @@ model Client {
   estimates   Estimate[]
   engagements Engagement[]
   contracts   Contract[]
+  contacts    Contact[]
+  deals       Deal[]
 
   archived  Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -288,6 +290,7 @@ model Estimate {
 
   lineItems EstimateLineItem[]
   invoice   Invoice?
+  deal      Deal?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -657,6 +660,99 @@ model PayoutRun {
   updatedAt    DateTime @updatedAt
 
   payouts Payout[]
+}
+
+// ---------------------------------------------------------------------------
+// CRM: contacts, deal pipeline, activity timeline
+// ---------------------------------------------------------------------------
+
+/// A person at a client (the Client row is the company/account).
+model Contact {
+  id        String  @id @default(cuid())
+  clientId  String
+  client    Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  name      String
+  email     String?
+  phone     String?
+  title     String? // job title
+  isPrimary Boolean @default(false)
+  notes     String?
+
+  archived  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deals Deal[]
+
+  @@index([clientId])
+}
+
+enum DealStage {
+  LEAD
+  QUALIFIED
+  PROPOSAL
+  NEGOTIATION
+  WON
+  LOST
+}
+
+model Deal {
+  id    String    @id @default(cuid())
+  name  String
+  stage DealStage @default(LEAD)
+
+  // Existing client, or a prospect not yet converted.
+  clientId      String?
+  client        Client?  @relation(fields: [clientId], references: [id])
+  prospectName  String?
+  prospectEmail String?
+  contactId     String?
+  contact       Contact? @relation(fields: [contactId], references: [id])
+
+  value             Decimal? @db.Decimal(12, 2)
+  currency          String   @default("AED")
+  probability       Int? // 0–100
+  expectedCloseDate DateTime?
+  ownerId           String // User
+
+  estimateId String?   @unique // deal → estimate; estimate → invoice already exists
+  estimate   Estimate? @relation(fields: [estimateId], references: [id])
+
+  lostReason   String?
+  customFields Json?
+  archived     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([stage])
+  @@index([clientId])
+  @@index([ownerId])
+}
+
+enum ActivityType {
+  NOTE
+  CALL
+  EMAIL
+  MEETING
+  TASK
+}
+
+/// Shared timeline for deals, clients, contractors and contracts.
+model Activity {
+  id         String       @id @default(cuid())
+  entityType String // "DEAL" | "CLIENT" | "CONTRACTOR" | "CONTRACT"
+  entityId   String
+  type       ActivityType @default(NOTE)
+  body       String
+
+  dueDate     DateTime? // TASK
+  completedAt DateTime? // TASK
+
+  userId     String
+  occurredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId, occurredAt])
 }
 
 // ---------------------------------------------------------------------------

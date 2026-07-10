@@ -11,6 +11,7 @@ import {
   UserCog,
   Receipt,
   FileSignature,
+  KanbanSquare,
   Package,
   Settings,
   Menu,
@@ -38,6 +39,7 @@ import {
 
 const NAV: { href: string; label: string; icon: typeof LayoutDashboard; cap?: Capability }[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/crm", label: "CRM", icon: KanbanSquare, cap: "clients:read" },
   { href: "/invoices", label: "Invoices", icon: FileText, cap: "billing:read" },
   { href: "/estimates", label: "Estimates", icon: ScrollText, cap: "billing:read" },
   { href: "/clients", label: "Clients", icon: Users, cap: "clients:read" },
