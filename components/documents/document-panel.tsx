@@ -59,11 +59,13 @@ export function DocumentPanel({
   entityId,
   documents,
   kinds = KIND_OPTIONS,
+  allowDelete = true,
 }: {
   entityType: string;
   entityId: string;
   documents: PanelDocument[];
   kinds?: { value: string; label: string }[];
+  allowDelete?: boolean;
 }) {
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
@@ -144,6 +146,7 @@ export function DocumentPanel({
                 </div>
               </div>
               {expiryBadge(doc.expiryDate)}
+              {allowDelete && (
               <ConfirmButton
                 trigger={
                   <Button
@@ -159,6 +162,7 @@ export function DocumentPanel({
                 action={() => deleteDocument(doc.id)}
                 onDone={() => router.refresh()}
               />
+              )}
             </li>
           ))}
         </ul>

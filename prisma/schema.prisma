@@ -288,6 +288,9 @@ model Estimate {
 
   customFields Json?
 
+  // Public acceptance link (client accept/decline without login).
+  publicToken String? @unique
+
   lineItems EstimateLineItem[]
   invoice   Invoice?
   deal      Deal?

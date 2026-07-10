@@ -28,7 +28,9 @@ export const authConfig = {
       // Edge-safe path-prefix gating from the JWT role only. Fine-grained
       // capability checks live in lib/permissions.ts (node).
       const path = nextUrl.pathname;
-      if (isPortalRole && !path.startsWith("/portal")) {
+      // API routes authorize themselves (capabilities / own-entity checks) —
+      // never redirect them, or portal file access breaks.
+      if (isPortalRole && !path.startsWith("/portal") && !path.startsWith("/api")) {
         return Response.redirect(new URL("/portal", nextUrl));
       }
       if (!isPortalRole && path.startsWith("/portal")) {
