@@ -171,14 +171,15 @@ export function AppShell({
             href="/dashboard"
             className="group flex items-center gap-2.5 text-sidebar-foreground"
           >
-            <LogoMark className="size-[30px] transition-transform duration-300 group-hover:scale-105" />
+            <LogoMark className="size-[34px] transition-transform duration-300 group-hover:scale-105" />
             <div className="leading-none">
-              <div className="flex items-baseline gap-1.5 font-display text-[15px] font-semibold tracking-tight">
-                <span lang="ar" dir="rtl" className="text-[17px] leading-none">فَلَك</span>
-                <span className="uppercase tracking-[0.08em]">Falak</span>
+              <div className="flex items-baseline gap-1.5 font-display text-[16px] font-semibold tracking-tight">
+                <span lang="ar" dir="rtl" className="text-[18px] leading-none">فَلَك</span>
+                <span className="uppercase tracking-[0.1em]">Falak</span>
               </div>
-              <div className="mt-1 text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
-                × Binary AI
+              <div className="mt-1.5 flex items-center gap-1 text-[10.5px] font-medium uppercase tracking-[0.18em]">
+                <span className="text-sidebar-primary">×</span>
+                <span className="text-sidebar-foreground/70">Binary AI</span>
               </div>
             </div>
           </Link>
