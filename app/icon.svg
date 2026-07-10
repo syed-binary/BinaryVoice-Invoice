@@ -1,8 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180" role="img" aria-label="Binary AI Labs">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180" role="img" aria-label="Falak by Binary AI">
+  <defs>
+    <linearGradient id="falak-orbit" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ededed" stop-opacity="0.25"/>
+      <stop offset="55%" stop-color="#ededed" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#818cf8"/>
+    </linearGradient>
+    <radialGradient id="falak-core" cx="38%" cy="32%" r="80%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#c7d2fe"/>
+    </radialGradient>
+  </defs>
   <rect width="180" height="180" rx="40" fill="#0a0a0a"/>
-  <g transform="translate(8 50)">
-    <path d="M 28 10 L 10 40 L 28 70" stroke="#ededed" stroke-width="2.4" stroke-linecap="square" stroke-linejoin="miter" transform="scale(1.04)" fill="none"/>
-    <text x="80" y="57" text-anchor="middle" fill="#ededed" font-family="'SF Pro Display', system-ui, sans-serif" font-size="50" font-weight="600" letter-spacing="-0.02em" transform="scale(1.04)">B</text>
-    <path d="M 132 10 L 150 40 L 132 70" stroke="#ededed" stroke-width="2.4" stroke-linecap="square" stroke-linejoin="miter" transform="scale(1.04)" fill="none"/>
-  </g>
+  <path d="M 34 62 L 18 90 L 34 118" stroke="#ededed" stroke-width="4.5" stroke-linecap="square" stroke-linejoin="miter" fill="none" opacity="0.85"/>
+  <path d="M 146 62 L 162 90 L 146 118" stroke="#ededed" stroke-width="4.5" stroke-linecap="square" stroke-linejoin="miter" fill="none" opacity="0.85"/>
+  <ellipse cx="90" cy="90" rx="58" ry="23" transform="rotate(-28 90 90)" fill="none" stroke="#ededed" stroke-width="1" opacity="0.14"/>
+  <ellipse cx="90" cy="90" rx="46" ry="17.5" transform="rotate(-28 90 90)" fill="none" stroke="url(#falak-orbit)" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="90" cy="90" r="13.5" fill="url(#falak-core)"/>
+  <circle cx="103" cy="65.6" r="6" fill="#818cf8"/>
+  <circle cx="103" cy="65.6" r="9.5" fill="#818cf8" opacity="0.25"/>
 </svg>
