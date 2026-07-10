@@ -9,7 +9,10 @@ import {
   Hash,
   Briefcase,
   Receipt,
+  Trash2,
 } from "lucide-react";
+import { deleteContractor } from "@/lib/actions/contractors/contractors";
+import { ConfirmButton } from "@/components/app/confirm-button";
 import { prisma } from "@/lib/prisma";
 import { requireCapability } from "@/lib/permissions";
 import { getCompany } from "@/lib/company";
@@ -153,6 +156,17 @@ export default async function ContractorDetailPage({
               <p className="whitespace-pre-line text-sm">{contractor.notes}</p>
             </div>
           )}
+
+          <ConfirmButton
+            trigger={
+              <Button variant="outline" className="w-full gap-2 text-destructive hover:text-destructive">
+                <Trash2 className="size-4" /> Delete contractor
+              </Button>
+            }
+            title="Delete this contractor?"
+            description="If the contractor has engagements, payables, payouts or contracts, the record is archived instead of permanently deleted."
+            action={deleteContractor.bind(null, id)}
+          />
         </div>
 
         {/* Main */}
