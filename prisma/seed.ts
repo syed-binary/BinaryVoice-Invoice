@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { seedContracts } from "./seed-contracts";
 
 const prisma = new PrismaClient();
 
@@ -71,6 +72,9 @@ async function main() {
     });
   }
   console.log(`✔ ${customFields.length} example custom fields seeded`);
+
+  // --- Contract templates + jurisdiction clause packs ---
+  await seedContracts(prisma);
 }
 
 main()
