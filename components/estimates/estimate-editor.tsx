@@ -66,6 +66,7 @@ export function EstimateEditor({
   fieldDefs,
   estimate,
   preselectClientId,
+  dealId,
 }: {
   clients: EditorClient[];
   items: Pick<Item, "id" | "name" | "description" | "unitPrice" | "unit">[];
@@ -73,6 +74,7 @@ export function EstimateEditor({
   fieldDefs: FieldDef[];
   estimate?: EditorEstimate;
   preselectClientId?: string;
+  dealId?: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -196,6 +198,7 @@ export function EstimateEditor({
       expiryDate: expiryDate || null,
       currency,
       fxRate: isForeign ? fxRate : 1,
+      dealId: dealId ?? null,
       vatEnabled,
       vatRate,
       withholdingEnabled,
