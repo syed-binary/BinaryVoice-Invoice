@@ -8,12 +8,15 @@ import {
   FileText,
   ScrollText,
   Users,
+  UserCog,
+  Receipt,
   Package,
   Settings,
   Menu,
   LogOut,
   Plus,
 } from "lucide-react";
+import { can, type Capability } from "@/lib/capabilities";
 import { cn } from "@/lib/utils";
 import { Logo, LogoMark } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
@@ -32,20 +35,22 @@ import {
   type BellNotification,
 } from "@/components/app/notifications-bell";
 
-const NAV = [
+const NAV: { href: string; label: string; icon: typeof LayoutDashboard; cap?: Capability }[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/invoices", label: "Invoices", icon: FileText },
-  { href: "/estimates", label: "Estimates", icon: ScrollText },
-  { href: "/clients", label: "Clients", icon: Users },
-  { href: "/items", label: "Items", icon: Package },
+  { href: "/invoices", label: "Invoices", icon: FileText, cap: "billing:read" },
+  { href: "/estimates", label: "Estimates", icon: ScrollText, cap: "billing:read" },
+  { href: "/clients", label: "Clients", icon: Users, cap: "clients:read" },
+  { href: "/contractors", label: "Contractors", icon: UserCog, cap: "contractors:read" },
+  { href: "/payables", label: "Payables", icon: Receipt, cap: "contractors:read" },
+  { href: "/items", label: "Items", icon: Package, cap: "billing:read" },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+function NavLinks({ role, onNavigate }: { role: string; onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
     <nav className="flex flex-1 flex-col gap-0.5 px-3">
-      {NAV.map((item) => {
+      {NAV.filter((item) => !item.cap || can(role, item.cap)).map((item) => {
         const active =
           pathname === item.href || pathname.startsWith(item.href + "/");
         const Icon = item.icon;
@@ -146,10 +151,11 @@ export function AppShell({
   notifications = [],
   children,
 }: {
-  user: { name?: string | null; email?: string | null };
+  user: { name?: string | null; email?: string | null; role?: string };
   notifications?: BellNotification[];
   children: React.ReactNode;
 }) {
+  const role = user.role ?? "MEMBER";
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -185,7 +191,7 @@ export function AppShell({
             Menu
           </span>
         </div>
-        <NavLinks />
+        <NavLinks role={role} />
         <div className="mt-auto border-t border-sidebar-border px-3 pt-3">
           <div className="flex items-center gap-1">
             <div className="min-w-0 flex-1">
@@ -222,7 +228,7 @@ export function AppShell({
                     <Plus className="size-4" /> New invoice
                   </Button>
                 </div>
-                <NavLinks onNavigate={() => setMobileOpen(false)} />
+                <NavLinks role={role} onNavigate={() => setMobileOpen(false)} />
                 <div className="mt-auto border-t border-sidebar-border px-3 pt-3">
                   <UserMenu user={user} />
                 </div>

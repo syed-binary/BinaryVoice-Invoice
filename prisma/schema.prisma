@@ -111,8 +111,9 @@ model Client {
 
   customFields Json?
 
-  invoices  Invoice[]
-  estimates Estimate[]
+  invoices    Invoice[]
+  estimates   Estimate[]
+  engagements Engagement[]
 
   archived  Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -226,7 +227,13 @@ model LineItem {
   lineTotal   Decimal @default(0) @db.Decimal(12, 2)
   sortOrder   Int     @default(0)
 
+  // Optional link to a contractor engagement — enables actual (billed vs
+  // paid) margin reporting per engagement.
+  engagementId String?
+  engagement   Engagement? @relation(fields: [engagementId], references: [id])
+
   @@index([invoiceId])
+  @@index([engagementId])
 }
 
 // ---------------------------------------------------------------------------
@@ -465,4 +472,206 @@ model FxRate {
   source String   @default("MANUAL") // MANUAL | ECB
 
   @@unique([base, quote, date])
+}
+
+// ---------------------------------------------------------------------------
+// Contractors: global workforce, engagements, payables (inverse of invoices)
+// ---------------------------------------------------------------------------
+
+enum RateUnit {
+  HOUR
+  DAY
+  MONTH
+  FIXED
+}
+
+enum ContractorStatus {
+  ONBOARDING
+  ACTIVE
+  INACTIVE
+}
+
+model Contractor {
+  id           String  @id @default(cuid())
+  name         String
+  email        String  @unique
+  phone        String?
+  country      String // ISO name or code — drives offer-letter clause packs later
+  taxResidency String?
+  entityName   String? // many contractors bill via their own LLC/Ltd
+  taxId        String?
+  vatRegistered Boolean @default(false)
+  address      String?
+
+  currency      String  @default("USD")
+  payoutMethod  String? // BANK | WISE | PAYONEER | OTHER
+  payoutDetails String? // encrypted JSON blob (lib/crypto.ts) — IBAN/Wise email/…
+
+  defaultCostRate Decimal? @db.Decimal(12, 2)
+  defaultRateUnit RateUnit @default(DAY)
+
+  status ContractorStatus @default(ONBOARDING)
+  userId String? @unique // portal login (Phase 4)
+
+  customFields Json?
+  notes        String?
+  archived     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  engagements Engagement[]
+  payables    ContractorInvoice[]
+  payouts     Payout[]
+
+  @@index([name])
+  @@index([status])
+}
+
+enum Ir35Status {
+  NOT_APPLICABLE
+  INSIDE
+  OUTSIDE
+  UNDETERMINED
+}
+
+/// A contractor placed on client work (or internal lab work when clientId
+/// is null). Cost vs bill rates drive margin reporting.
+model Engagement {
+  id           String     @id @default(cuid())
+  contractorId String
+  contractor   Contractor @relation(fields: [contractorId], references: [id])
+  clientId     String?
+  client       Client?    @relation(fields: [clientId], references: [id])
+
+  title     String // e.g. "Senior ML Engineer @ Acme"
+  startDate DateTime
+  endDate   DateTime?
+
+  rateUnit     RateUnit
+  costRate     Decimal  @db.Decimal(12, 2)
+  costCurrency String
+  billRate     Decimal? @db.Decimal(12, 2)
+  billCurrency String?
+
+  capacity Decimal? @db.Decimal(5, 2) // FTE fraction, for utilization
+
+  ir35Status Ir35Status @default(NOT_APPLICABLE) // UK contractor at UK client
+  ir35Notes  String? // SDS reference; the SDS PDF lives in the Document vault
+
+  status    String   @default("ACTIVE") // ACTIVE | ENDED
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payables  ContractorInvoice[]
+  lineItems LineItem[]
+
+  @@index([contractorId])
+  @@index([clientId])
+}
+
+enum PayableStatus {
+  RECEIVED
+  APPROVED
+  SCHEDULED
+  PAID
+  REJECTED
+}
+
+/// A contractor's invoice to us — the payables mirror of Invoice.
+model ContractorInvoice {
+  id             String     @id @default(cuid())
+  internalNumber String     @unique // NumberSequence "payable"
+  contractorRef  String? // the contractor's own invoice number
+  contractorId   String
+  contractor     Contractor @relation(fields: [contractorId], references: [id])
+  engagementId   String?
+  engagement     Engagement? @relation(fields: [engagementId], references: [id])
+
+  periodStart DateTime?
+  periodEnd   DateTime?
+  issueDate   DateTime  @default(now())
+  dueDate     DateTime?
+
+  currency  String
+  fxRate    Decimal @default(1) @db.Decimal(18, 8)
+  subtotal  Decimal @default(0) @db.Decimal(12, 2)
+  total     Decimal @default(0) @db.Decimal(12, 2)
+  baseTotal Decimal @default(0) @db.Decimal(12, 2)
+
+  status       PayableStatus @default(RECEIVED)
+  approvedById String?
+  approvedAt   DateTime?
+  rejectedReason String?
+
+  sourceDocumentId String? // uploaded PDF from the contractor (Document id)
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  lines  ContractorInvoiceLine[]
+  payout Payout?
+
+  @@index([status])
+  @@index([contractorId])
+}
+
+model ContractorInvoiceLine {
+  id          String            @id @default(cuid())
+  payableId   String
+  payable     ContractorInvoice @relation(fields: [payableId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Decimal           @default(1) @db.Decimal(12, 3)
+  unitPrice   Decimal           @default(0) @db.Decimal(12, 2)
+  unit        String?
+  lineTotal   Decimal           @default(0) @db.Decimal(12, 2)
+  sortOrder   Int               @default(0)
+
+  @@index([payableId])
+}
+
+enum PayoutRunStatus {
+  DRAFT
+  APPROVED
+  PAID
+}
+
+/// Track-only batch mirroring what was sent via Wise/bank.
+model PayoutRun {
+  id        String          @id @default(cuid())
+  number    String          @unique // NumberSequence "payout-run"
+  name      String?
+  status    PayoutRunStatus @default(DRAFT)
+  paidDate  DateTime?
+  method    String?
+  reference String?
+  totalBase Decimal         @default(0) @db.Decimal(12, 2)
+
+  approvedById String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  payouts Payout[]
+}
+
+model Payout {
+  id                  String             @id @default(cuid())
+  payoutRunId         String?
+  payoutRun           PayoutRun?         @relation(fields: [payoutRunId], references: [id])
+  contractorId        String
+  contractor          Contractor         @relation(fields: [contractorId], references: [id])
+  contractorInvoiceId String?            @unique
+  contractorInvoice   ContractorInvoice? @relation(fields: [contractorInvoiceId], references: [id])
+
+  amount     Decimal  @db.Decimal(12, 2)
+  currency   String
+  fxRate     Decimal  @default(1) @db.Decimal(18, 8)
+  baseAmount Decimal  @default(0) @db.Decimal(12, 2)
+  feeAmount  Decimal? @db.Decimal(12, 2) // Wise/bank fee, for true cost
+
+  paidDate  DateTime?
+  reference String?
+  createdAt DateTime  @default(now())
+
+  @@index([contractorId])
 }
