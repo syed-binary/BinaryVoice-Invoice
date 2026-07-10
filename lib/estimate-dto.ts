@@ -11,6 +11,7 @@ export function toEditorEstimate(
     issueDate: estimate.issueDate.toISOString().slice(0, 10),
     expiryDate: estimate.expiryDate ? estimate.expiryDate.toISOString().slice(0, 10) : null,
     currency: estimate.currency,
+    fxRate: toNumber(estimate.fxRate),
     vatEnabled: estimate.vatEnabled,
     vatRate: toNumber(estimate.vatRate),
     withholdingEnabled: estimate.withholdingEnabled,

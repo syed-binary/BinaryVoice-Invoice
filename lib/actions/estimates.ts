@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { calculateTotals } from "@/lib/calculations";
 import { nextEstimateNumber, nextInvoiceNumber } from "@/lib/invoice-number";
+import { toBase } from "@/lib/fx";
 
 const lineSchema = z.object({
   itemId: z.string().nullish(),
@@ -24,6 +25,7 @@ const payloadSchema = z.object({
   issueDate: z.string().min(1),
   expiryDate: z.string().nullish(),
   currency: z.string().min(1),
+  fxRate: z.number().positive().default(1),
   vatEnabled: z.boolean(),
   vatRate: z.number().finite().default(5),
   withholdingEnabled: z.boolean().default(false),
@@ -80,6 +82,8 @@ export async function saveEstimate(payload: EstimatePayload): Promise<SaveResult
     issueDate: new Date(p.issueDate),
     expiryDate: p.expiryDate ? new Date(p.expiryDate) : null,
     currency: p.currency,
+    fxRate: p.fxRate,
+    baseTotal: toBase(totals.total, p.fxRate),
     vatEnabled: p.vatEnabled,
     vatRate: p.vatRate,
     withholdingEnabled: p.withholdingEnabled,
@@ -174,6 +178,8 @@ export async function convertToInvoice(id: string): Promise<SaveResult> {
         issueDate: new Date(),
         dueDate: due,
         currency: est.currency,
+        fxRate: est.fxRate,
+        baseTotal: est.baseTotal,
         vatEnabled: est.vatEnabled,
         vatRate: est.vatRate,
         withholdingEnabled: est.withholdingEnabled,
