@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { contractHtml } from "@/lib/contracts/markdown";
 import { markViewed } from "@/lib/actions/contracts/signing";
 import { formatDateLong } from "@/lib/format";
-import { Logo } from "@/components/brand/logo";
+import { Logo, BrandAyah } from "@/components/brand/logo";
 import { SignForm } from "@/components/contracts/sign-form";
 import { CheckCircle2, ShieldX } from "lucide-react";
 
@@ -79,6 +79,11 @@ export default async function SignPage({
           Document integrity: SHA-256 {contract.bodyHash}
         </p>
       )}
+
+      <BrandAyah
+        className="mt-10 text-center text-muted-foreground/70"
+        translationClassName="text-muted-foreground/50"
+      />
     </div>
   );
 }

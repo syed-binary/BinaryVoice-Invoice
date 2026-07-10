@@ -173,11 +173,12 @@ export function AppShell({
           >
             <LogoMark className="size-[30px] transition-transform duration-300 group-hover:scale-105" />
             <div className="leading-none">
-              <div className="font-display text-[15px] font-semibold tracking-tight">
-                Binary Labs
+              <div className="flex items-baseline gap-1.5 font-display text-[15px] font-semibold tracking-tight">
+                <span lang="ar" dir="rtl" className="text-[17px] leading-none">فَلَك</span>
+                <span className="uppercase tracking-[0.08em]">Falak</span>
               </div>
-              <div className="mt-1 text-[9.5px] uppercase tracking-[0.2em] text-muted-foreground">
-                Invoicing
+              <div className="mt-1 text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
+                × Binary AI
               </div>
             </div>
           </Link>
