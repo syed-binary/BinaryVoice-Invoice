@@ -37,15 +37,18 @@ export default function LoginPage() {
         />
         <div className="pointer-events-none absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)", backgroundSize: "56px 56px" }} />
 
-        <div className="relative flex items-center gap-2.5">
-          <LogoMark className="size-9" />
-          <span className="flex items-baseline gap-2 font-display text-[17px] font-semibold tracking-tight">
-            <span lang="ar" dir="rtl" className="text-[19px]">فَلَك</span>
-            <span className="uppercase tracking-[0.08em]">Falak</span>
-            <span className="text-[11px] font-normal uppercase tracking-[0.22em] text-white/50">
-              × Binary AI
-            </span>
-          </span>
+        <div className="relative flex items-center gap-3">
+          <LogoMark className="size-11" />
+          <div className="leading-none">
+            <div className="flex items-baseline gap-2 font-display text-[19px] font-semibold tracking-tight">
+              <span lang="ar" dir="rtl" className="text-[21px]">فَلَك</span>
+              <span className="uppercase tracking-[0.1em]">Falak</span>
+            </div>
+            <div className="mt-1.5 flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.2em]">
+              <span className="text-indigo-400">×</span>
+              <span className="text-white/75">Binary AI</span>
+            </div>
+          </div>
         </div>
 
         <div className="relative max-w-md">
