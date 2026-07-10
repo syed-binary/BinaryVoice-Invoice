@@ -10,6 +10,7 @@ import {
   Users,
   UserCog,
   Receipt,
+  FileSignature,
   Package,
   Settings,
   Menu,
@@ -42,6 +43,7 @@ const NAV: { href: string; label: string; icon: typeof LayoutDashboard; cap?: Ca
   { href: "/clients", label: "Clients", icon: Users, cap: "clients:read" },
   { href: "/contractors", label: "Contractors", icon: UserCog, cap: "contractors:read" },
   { href: "/payables", label: "Payables", icon: Receipt, cap: "contractors:read" },
+  { href: "/contracts", label: "Contracts", icon: FileSignature, cap: "contracts:read" },
   { href: "/items", label: "Items", icon: Package, cap: "billing:read" },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
