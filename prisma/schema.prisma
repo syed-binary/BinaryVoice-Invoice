@@ -114,6 +114,7 @@ model Client {
   invoices    Invoice[]
   estimates   Estimate[]
   engagements Engagement[]
+  contracts   Contract[]
 
   archived  Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -522,6 +523,7 @@ model Contractor {
   engagements Engagement[]
   payables    ContractorInvoice[]
   payouts     Payout[]
+  contracts   Contract[]
 
   @@index([name])
   @@index([status])
@@ -557,6 +559,9 @@ model Engagement {
 
   ir35Status Ir35Status @default(NOT_APPLICABLE) // UK contractor at UK client
   ir35Notes  String? // SDS reference; the SDS PDF lives in the Document vault
+
+  contractId String? // signed contractor agreement / SOW covering this work
+  contract   Contract? @relation(fields: [contractId], references: [id])
 
   status    String   @default("ACTIVE") // ACTIVE | ENDED
   notes     String?
@@ -652,6 +657,165 @@ model PayoutRun {
   updatedAt    DateTime @updatedAt
 
   payouts Payout[]
+}
+
+// ---------------------------------------------------------------------------
+// Contracts: templates, jurisdiction clause packs, e-sign
+// ---------------------------------------------------------------------------
+
+enum ContractType {
+  MSA
+  SOW
+  NDA
+  CONTRACTOR_AGREEMENT
+  OFFER_LETTER
+  EMPLOYMENT
+  AMENDMENT
+  OTHER
+}
+
+enum ContractStatus {
+  DRAFT
+  SENT
+  SIGNED
+  ACTIVE
+  EXPIRED
+  TERMINATED
+}
+
+enum RenewalType {
+  NONE
+  AUTO_RENEW
+  MANUAL
+}
+
+enum ClauseCategory {
+  ENGAGEMENT_STATUS
+  TAX_WITHHOLDING
+  IP_ASSIGNMENT
+  CONFIDENTIALITY
+  DATA_PROTECTION
+  TERMINATION
+  NON_SOLICIT
+  DISPUTE_LAW
+  COMPLIANCE
+  PAYMENT
+  OTHER
+}
+
+/// Markdown body with {{merge.fields}} (lib/contracts/merge.ts).
+model ContractTemplate {
+  id           String       @id @default(cuid())
+  name         String
+  type         ContractType
+  body         String
+  variables    Json? // declared custom variables beyond the built-in paths
+  jurisdiction String? // optional ISO country hint
+  archived     Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+/// Jurisdiction-aware clause library. jurisdiction "*" = global pack; ISO
+/// codes ("GB", "IN", "AE") select country packs for offer letters and
+/// contractor agreements. AI-drafted clauses stay flagged until counsel
+/// review (reviewedBy/reviewedAt) — the UI warns on unreviewed clauses.
+model Clause {
+  id           String         @id @default(cuid())
+  jurisdiction String
+  category     ClauseCategory
+  title        String
+  body         String // markdown with merge fields
+  mandatory    Boolean        @default(true) // auto-included for that jurisdiction
+  sortOrder    Int            @default(0)
+  version      Int            @default(1)
+  reviewedBy   String?
+  reviewedAt   DateTime?
+  archived     Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([jurisdiction, category])
+}
+
+model Contract {
+  id     String         @id @default(cuid())
+  number String         @unique // NumberSequence "contract"
+  type   ContractType
+  status ContractStatus @default(DRAFT)
+  title  String
+
+  // Exactly one counterparty (employee joins in the HR phase).
+  clientId     String?
+  client       Client?     @relation(fields: [clientId], references: [id])
+  contractorId String?
+  contractor   Contractor? @relation(fields: [contractorId], references: [id])
+
+  // SOW under MSA, amendments under their parent.
+  parentId String?
+  parent   Contract?  @relation("ContractParent", fields: [parentId], references: [id])
+  children Contract[] @relation("ContractParent")
+
+  effectiveDate    DateTime?
+  endDate          DateTime?
+  renewalType      RenewalType @default(NONE)
+  noticePeriodDays Int?
+
+  value     Decimal? @db.Decimal(12, 2)
+  currency  String   @default("AED")
+  fxRate    Decimal  @default(1) @db.Decimal(18, 8)
+  baseValue Decimal? @db.Decimal(12, 2)
+
+  templateId   String?
+  body         String // working draft (markdown)
+  bodySnapshot String? // frozen at send — what signatories actually sign
+  bodyHash     String? // sha256 of bodySnapshot — signature integrity
+
+  customFields Json?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  versions    ContractVersion[]
+  signatories ContractSignatory[]
+  engagements Engagement[]
+
+  @@index([status])
+  @@index([endDate])
+  @@index([clientId])
+  @@index([contractorId])
+}
+
+model ContractVersion {
+  id          String   @id @default(cuid())
+  contractId  String
+  contract    Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  version     Int
+  body        String
+  changeNote  String?
+  createdById String
+  createdAt   DateTime @default(now())
+
+  @@unique([contractId, version])
+}
+
+/// Public signing link: /sign/[token]. Click-to-sign captures typed name +
+/// IP + user agent + timestamp against the frozen body hash.
+model ContractSignatory {
+  id         String   @id @default(cuid())
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  name       String
+  email      String
+  order      Int      @default(0)
+
+  token         String    @unique
+  viewedAt      DateTime?
+  signedAt      DateTime?
+  signatureName String?
+  ip            String?
+  userAgent     String?
+  createdAt     DateTime  @default(now())
 }
 
 model Payout {
