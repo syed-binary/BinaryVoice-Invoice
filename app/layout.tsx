@@ -39,8 +39,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Binary Labs — Invoicing",
-  description: "Invoicing for Binary AI Labs and Technologies L.L.C-FZ",
+  title: "Falak فلك × Binary AI",
+  description:
+    "Falak (فَلَك, “orbit” — Yā-Sīn 36:40): the company OS of Binary AI Labs and Technologies L.L.C-FZ. Invoicing, CRM, contracts, global contractors and payouts — each in one orbit.",
 };
 
 export default function RootLayout({

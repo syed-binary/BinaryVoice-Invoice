@@ -39,21 +39,29 @@ export default function LoginPage() {
 
         <div className="relative flex items-center gap-2.5">
           <LogoMark className="size-9" />
-          <span className="font-display text-[17px] font-semibold tracking-tight">
-            Binary Labs
+          <span className="flex items-baseline gap-2 font-display text-[17px] font-semibold tracking-tight">
+            <span lang="ar" dir="rtl" className="text-[19px]">فَلَك</span>
+            <span className="uppercase tracking-[0.08em]">Falak</span>
+            <span className="text-[11px] font-normal uppercase tracking-[0.22em] text-white/50">
+              × Binary AI
+            </span>
           </span>
         </div>
 
         <div className="relative max-w-md">
-          <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-white/60">
-            <ShieldCheck className="size-3.5" /> UAE-ready invoicing
+          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-white/60">
+            <ShieldCheck className="size-3.5" /> The company OS
           </p>
-          <h1 className="font-display text-[2.6rem] font-semibold leading-[1.08] tracking-tight text-white">
-            Invoicing, refined for the enterprise.
-          </h1>
-          <p className="mt-5 text-[15px] leading-relaxed text-white/55">
-            Resource-based billing, VAT &amp; withholding, and beautiful
-            enterprise-grade documents — precise, sober, effortless.
+          <p lang="ar" dir="rtl" className="font-serif text-[2.9rem] leading-[1.5] text-white">
+            وَكُلٌّ فِي فَلَكٍ يَسْبَحُونَ
+          </p>
+          <p className="mt-3 text-sm italic text-white/45">
+            “…and each, in an orbit, is swimming.” — Yā-Sīn 36:40
+          </p>
+          <p className="mt-6 text-[15px] leading-relaxed text-white/55">
+            Clients, contractors, contracts and every dirham — one orbit.
+            Invoicing, CRM, agreements, global workforce and payouts,
+            in a single place.
           </p>
         </div>
 
@@ -75,7 +83,7 @@ export default function LoginPage() {
             Welcome back
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Sign in to your Binary Labs workspace.
+            Sign in to your Falak workspace.
           </p>
 
           <form action={formAction} className="mt-8 space-y-5">
