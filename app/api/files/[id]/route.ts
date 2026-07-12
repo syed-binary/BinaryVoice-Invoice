@@ -21,12 +21,16 @@ export async function GET(
   }
   const role = session.user.role ?? "MEMBER";
   if (!can(role, documentCapability(doc.entityType, "read"))) {
-    // Portal contractors may read documents attached to their own record.
+    // Portal users may read documents attached to their own record.
     const own =
-      role === "CONTRACTOR" &&
-      doc.entityType === "CONTRACTOR" &&
-      (await prisma.contractor.findUnique({ where: { userId: session.user.id } }))
-        ?.id === doc.entityId;
+      (role === "CONTRACTOR" &&
+        doc.entityType === "CONTRACTOR" &&
+        (await prisma.contractor.findUnique({ where: { userId: session.user.id } }))
+          ?.id === doc.entityId) ||
+      (role === "EMPLOYEE" &&
+        doc.entityType === "EMPLOYEE" &&
+        (await prisma.employee.findUnique({ where: { userId: session.user.id } }))
+          ?.id === doc.entityId);
     if (!own) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
