@@ -68,6 +68,17 @@ export async function submitOnboarding(
   });
   if (emailClash) return { error: "This email is already registered — contact us" };
 
+  // Documents are part of onboarding — at least an ID must be uploaded.
+  const docCount = await prisma.document.count({
+    where: { entityType: "CONTRACTOR", entityId: contractor.id, archived: false },
+  });
+  if (docCount === 0) {
+    return {
+      error:
+        "Please upload your documents first (step 4) — at minimum your passport or national ID.",
+    };
+  }
+
   await prisma.contractor.update({
     where: { id: contractor.id },
     data: {
