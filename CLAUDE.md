@@ -71,3 +71,10 @@ Email sending, recurring invoices, Stripe, bilingual EN/AR, Peppol PINT-AE XML e
 - Salary: `CompensationRecord` history gated by `compensation:read` (ADMIN/FINANCE only — HR sees the employee, not the money). Amounts never logged to audit diffs. Basic/allowance split feeds gratuity + WPS in the payroll phase.
 - Leave: UAE types seeded (`lv-*` ids); balances lazily created per year; `requestLeave` allows self-service (employee portal) or hr:write on behalf; approval decrements balance atomically.
 - Employee portal: role EMPLOYEE shares `/portal` — layout + pages dispatch by role (`requirePortalEmployee`). Employee numbers use `nextNumber(tx, "employee", "EMP")`.
+
+## Payroll + Reports (Phases 6–7)
+
+- Payroll: `PayrollRun` (PRL-, unique year+month) snapshots latest `CompensationRecord` per active employee; adjustments recompute via `recomputeTotals`. WPS SIF at `/api/payroll/[id]/sif` (needs `WPS_EMPLOYER_MOL_ID`/`WPS_BANK_CODE` env + per-employee MOL ID/agent/IBAN; **validate format with the bank before live use**). Gratuity math is pure (`lib/payroll/gratuity.ts`) — keep tests green when touching.
+- Reports `/reports`: AED cash position (receivables − payables − monthly payroll), gratuity liability, rate-card engagement margins. Payroll numbers hidden without `payroll:read`.
+- Global search: ⌘K palette (`components/app/command-palette.tsx`) → `lib/actions/search.ts`, capability-filtered per entity group.
+- Payable anomaly warnings (`lib/contractors/anomalies.ts`, pure): duplicate contractor ref, engagement rate drift >10%, currency mismatch — shown on RECEIVED payables only.
