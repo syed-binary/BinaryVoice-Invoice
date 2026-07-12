@@ -158,7 +158,11 @@ export function OnboardingForm({
         </div>
       </Section>
 
-      <Section n={4} title="Documents" hint="Passport or national ID and a proof of address, plus any tax forms.">
+      <Section
+        n={4}
+        title="Documents (required)"
+        hint="Upload at least your passport or national ID before submitting — plus a proof of address and any tax forms. Add expiry dates where they apply."
+      >
         <div className="grid gap-3 sm:grid-cols-[1fr_170px_140px_auto] sm:items-end">
           <div className="space-y-1.5"><Label>File</Label><Input ref={fileRef} type="file" accept=".pdf,.png,.jpg,.jpeg,.webp" /></div>
           <div className="space-y-1.5"><Label>Type</Label><SimpleSelect value={docKind} onValueChange={setDocKind} options={DOC_KINDS} /></div>
