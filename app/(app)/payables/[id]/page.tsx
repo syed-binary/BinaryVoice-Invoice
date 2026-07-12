@@ -8,6 +8,10 @@ import { formatMoney } from "@/lib/money";
 import { formatDate } from "@/lib/format";
 import { PageHeader, PageBody } from "@/components/app/page-header";
 import { PayableActions } from "@/components/payables/payable-actions";
+import { payableAnomalies } from "@/lib/contractors/anomalies";
+import { toNumber } from "@/lib/money";
+import { differenceInCalendarDays } from "date-fns";
+import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -32,7 +36,7 @@ export default async function PayableDetailPage({
       where: { id },
       include: {
         contractor: { select: { id: true, name: true, payoutMethod: true } },
-        engagement: { select: { title: true } },
+        engagement: { select: { title: true, rateUnit: true, costRate: true, costCurrency: true } },
         lines: { orderBy: { sortOrder: "asc" } },
         payout: true,
       },
@@ -44,6 +48,37 @@ export default async function PayableDetailPage({
   const sourceDoc = payable.sourceDocumentId
     ? await prisma.document.findUnique({ where: { id: payable.sourceDocumentId } })
     : null;
+
+  const duplicateRefCount = payable.contractorRef
+    ? await prisma.contractorInvoice.count({
+        where: {
+          contractorId: payable.contractorId,
+          contractorRef: payable.contractorRef,
+          id: { not: payable.id },
+          status: { not: "REJECTED" },
+        },
+      })
+    : 0;
+  const warnings =
+    payable.status === "RECEIVED"
+      ? payableAnomalies({
+          total: toNumber(payable.total),
+          currency: payable.currency,
+          contractorRef: payable.contractorRef,
+          duplicateRefCount,
+          engagement: payable.engagement
+            ? {
+                rateUnit: payable.engagement.rateUnit,
+                costRate: toNumber(payable.engagement.costRate),
+                costCurrency: payable.engagement.costCurrency,
+              }
+            : null,
+          periodDays:
+            payable.periodStart && payable.periodEnd
+              ? differenceInCalendarDays(payable.periodEnd, payable.periodStart) + 1
+              : null,
+        })
+      : [];
 
   return (
     <>
@@ -66,6 +101,18 @@ export default async function PayableDetailPage({
 
       <PageBody className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
+          {warnings.length > 0 && (
+            <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
+              <div className="mb-1.5 flex items-center gap-2 text-sm font-semibold text-amber-700">
+                <AlertTriangle className="size-4" /> Review before approving
+              </div>
+              <ul className="list-inside list-disc space-y-1 text-sm text-amber-700/90">
+                {warnings.map((w) => (
+                  <li key={w}>{w}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
             <table className="w-full text-sm">
               <thead>

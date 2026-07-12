@@ -14,6 +14,7 @@ import {
   KanbanSquare,
   HeartHandshake,
   Banknote,
+  BarChart3,
   Package,
   Settings,
   Menu,
@@ -38,6 +39,7 @@ import {
   NotificationsBell,
   type BellNotification,
 } from "@/components/app/notifications-bell";
+import { CommandPalette } from "@/components/app/command-palette";
 
 const NAV: { href: string; label: string; icon: typeof LayoutDashboard; cap?: Capability }[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -50,6 +52,7 @@ const NAV: { href: string; label: string; icon: typeof LayoutDashboard; cap?: Ca
   { href: "/contracts", label: "Contracts", icon: FileSignature, cap: "contracts:read" },
   { href: "/hr/employees", label: "HR", icon: HeartHandshake, cap: "hr:read" },
   { href: "/payroll", label: "Payroll", icon: Banknote, cap: "payroll:read" },
+  { href: "/reports", label: "Reports", icon: BarChart3, cap: "billing:read" },
   { href: "/items", label: "Items", icon: Package, cap: "billing:read" },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
@@ -168,6 +171,7 @@ export function AppShell({
 
   return (
     <div className="flex min-h-dvh flex-1">
+      <CommandPalette />
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar py-5 lg:flex">
         <div className="px-5 pb-5">
