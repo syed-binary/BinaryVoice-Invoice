@@ -16,6 +16,7 @@ import { ConfirmButton } from "@/components/app/confirm-button";
 import { getTimeline } from "@/lib/crm";
 import { ActivityTimeline } from "@/components/crm/activity-timeline";
 import { PortalAccessButton } from "@/components/contractors/portal-access-button";
+import { OnboardingLinkButton } from "@/components/contractors/onboarding-link-button";
 import { prisma } from "@/lib/prisma";
 import { requireCapability } from "@/lib/permissions";
 import { getCompany } from "@/lib/company";
@@ -163,6 +164,9 @@ export default async function ContractorDetailPage({
             </div>
           )}
 
+          {contractor.status === "ONBOARDING" && (
+            <OnboardingLinkButton contractorId={id} />
+          )}
           <PortalAccessButton
             contractorId={id}
             hasAccess={!!contractor.userId}
