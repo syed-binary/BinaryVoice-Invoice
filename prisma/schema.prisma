@@ -520,6 +520,11 @@ model Contractor {
   status ContractorStatus @default(ONBOARDING)
   userId String? @unique // portal login (Phase 4)
 
+  // Public self-onboarding link (/onboard/[token]) — contractor fills their
+  // own profile + uploads compliance docs before they have a portal login.
+  onboardingToken       String?   @unique
+  onboardingCompletedAt DateTime?
+
   customFields Json?
   notes        String?
   archived     Boolean  @default(false)
