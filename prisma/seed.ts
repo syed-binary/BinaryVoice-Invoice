@@ -75,6 +75,20 @@ async function main() {
 
   // --- Contract templates + jurisdiction clause packs ---
   await seedContracts(prisma);
+
+  // --- UAE leave types (Federal Decree-Law 33/2021) ---
+  const leaveTypes = [
+    { id: "lv-annual", name: "Annual leave", daysPerYear: 30, paid: true, sortOrder: 1 },
+    { id: "lv-sick-full", name: "Sick leave (full pay)", daysPerYear: 15, paid: true, sortOrder: 2 },
+    { id: "lv-sick-half", name: "Sick leave (half pay)", daysPerYear: 30, paid: true, sortOrder: 3 },
+    { id: "lv-sick-unpaid", name: "Sick leave (unpaid)", daysPerYear: 45, paid: false, sortOrder: 4 },
+    { id: "lv-maternity", name: "Maternity leave", daysPerYear: 60, paid: true, sortOrder: 5 },
+    { id: "lv-parental", name: "Parental leave", daysPerYear: 5, paid: true, sortOrder: 6 },
+  ];
+  for (const lt of leaveTypes) {
+    await prisma.leaveType.upsert({ where: { id: lt.id }, update: {}, create: lt });
+  }
+  console.log(`✔ ${leaveTypes.length} UAE leave types seeded`);
 }
 
 main()

@@ -47,12 +47,16 @@ export async function POST(request: Request) {
   const entity = entityType as DocumentEntity;
   const role = session.user.role ?? "MEMBER";
   if (!can(role, documentCapability(entity, "write"))) {
-    // Portal contractors may upload to their OWN compliance vault only.
+    // Portal users may upload to their OWN compliance vault only.
     const own =
-      role === "CONTRACTOR" &&
-      entity === "CONTRACTOR" &&
-      (await prisma.contractor.findUnique({ where: { userId: session.user.id } }))
-        ?.id === entityId;
+      (role === "CONTRACTOR" &&
+        entity === "CONTRACTOR" &&
+        (await prisma.contractor.findUnique({ where: { userId: session.user.id } }))
+          ?.id === entityId) ||
+      (role === "EMPLOYEE" &&
+        entity === "EMPLOYEE" &&
+        (await prisma.employee.findUnique({ where: { userId: session.user.id } }))
+          ?.id === entityId);
     if (!own) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }

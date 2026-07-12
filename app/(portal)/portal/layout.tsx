@@ -1,15 +1,21 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
-import { requirePortalContractor } from "@/lib/session";
+import { requireUser } from "@/lib/session";
 import { logout } from "@/lib/actions/auth";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 
-const NAV = [
+const CONTRACTOR_NAV = [
   { href: "/portal", label: "Overview" },
   { href: "/portal/invoices/new", label: "Submit invoice" },
   { href: "/portal/documents", label: "Documents" },
   { href: "/portal/contracts", label: "Contracts" },
+];
+
+const EMPLOYEE_NAV = [
+  { href: "/portal", label: "Overview" },
+  { href: "/portal/documents", label: "Documents" },
 ];
 
 export default async function PortalLayout({
@@ -17,7 +23,9 @@ export default async function PortalLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { contractor } = await requirePortalContractor();
+  const user = await requireUser();
+  if (user.role !== "CONTRACTOR" && user.role !== "EMPLOYEE") redirect("/dashboard");
+  const NAV = user.role === "EMPLOYEE" ? EMPLOYEE_NAV : CONTRACTOR_NAV;
 
   return (
     <div className="min-h-dvh bg-muted/30">
@@ -39,7 +47,7 @@ export default async function PortalLayout({
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden text-sm text-muted-foreground sm:block">
-              {contractor.name}
+              {user.name}
             </span>
             <form action={logout}>
               <Button variant="ghost" size="icon-sm" type="submit" title="Sign out">
