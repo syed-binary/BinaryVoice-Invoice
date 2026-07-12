@@ -13,6 +13,7 @@ import {
   FileSignature,
   KanbanSquare,
   HeartHandshake,
+  Banknote,
   Package,
   Settings,
   Menu,
@@ -48,6 +49,7 @@ const NAV: { href: string; label: string; icon: typeof LayoutDashboard; cap?: Ca
   { href: "/payables", label: "Payables", icon: Receipt, cap: "contractors:read" },
   { href: "/contracts", label: "Contracts", icon: FileSignature, cap: "contracts:read" },
   { href: "/hr/employees", label: "HR", icon: HeartHandshake, cap: "hr:read" },
+  { href: "/payroll", label: "Payroll", icon: Banknote, cap: "payroll:read" },
   { href: "/items", label: "Items", icon: Package, cap: "billing:read" },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
