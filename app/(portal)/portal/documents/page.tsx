@@ -1,13 +1,28 @@
 import { prisma } from "@/lib/prisma";
-import { requirePortalContractor } from "@/lib/session";
+import {
+  requirePortalContractor,
+  requirePortalEmployee,
+  requireUser,
+} from "@/lib/session";
 import { DocumentPanel } from "@/components/documents/document-panel";
 
 export const dynamic = "force-dynamic";
 
 export default async function PortalDocumentsPage() {
-  const { contractor } = await requirePortalContractor();
+  const session = await requireUser();
+  let entityType: "CONTRACTOR" | "EMPLOYEE";
+  let entityId: string;
+  if (session.role === "EMPLOYEE") {
+    const { employee } = await requirePortalEmployee();
+    entityType = "EMPLOYEE";
+    entityId = employee.id;
+  } else {
+    const { contractor } = await requirePortalContractor();
+    entityType = "CONTRACTOR";
+    entityId = contractor.id;
+  }
   const documents = await prisma.document.findMany({
-    where: { entityType: "CONTRACTOR", entityId: contractor.id, archived: false },
+    where: { entityType, entityId, archived: false },
     orderBy: { createdAt: "desc" },
   });
 
@@ -22,8 +37,8 @@ export default async function PortalDocumentsPage() {
       </div>
       <div className="rounded-xl border bg-card p-5 shadow-sm">
         <DocumentPanel
-          entityType="CONTRACTOR"
-          entityId={contractor.id}
+          entityType={entityType}
+          entityId={entityId}
           allowDelete={false}
           documents={documents.map((d) => ({
             id: d.id,

@@ -64,3 +64,10 @@ The new UAE Dirham symbol renders two ways, both from the official artwork in `D
 ## Deferred (data model is ready)
 
 Email sending, recurring invoices, Stripe, bilingual EN/AR, Peppol PINT-AE XML export.
+
+## HRMS (Phase 5)
+
+- `Employee` identity numbers + IBAN are **encrypted** (`lib/crypto.ts`); expiries stay plaintext for the expiry-alert cron (which also scans employee fields, not just Documents). Display via `maskIdentity()` (`lib/hr.ts`); forms leave blanks = keep stored value.
+- Salary: `CompensationRecord` history gated by `compensation:read` (ADMIN/FINANCE only — HR sees the employee, not the money). Amounts never logged to audit diffs. Basic/allowance split feeds gratuity + WPS in the payroll phase.
+- Leave: UAE types seeded (`lv-*` ids); balances lazily created per year; `requestLeave` allows self-service (employee portal) or hr:write on behalf; approval decrements balance atomically.
+- Employee portal: role EMPLOYEE shares `/portal` — layout + pages dispatch by role (`requirePortalEmployee`). Employee numbers use `nextNumber(tx, "employee", "EMP")`.
