@@ -5,7 +5,8 @@ export type TemplateId =
   | "modern"
   | "minimal"
   | "professional"
-  | "bold";
+  | "bold"
+  | "fixedcost";
 
 export const TEMPLATES: { id: TemplateId; name: string; description: string }[] = [
   { id: "enterprise", name: "Enterprise", description: "IBM-grade consulting invoice — Plex type, black header, precise grid." },
@@ -13,6 +14,7 @@ export const TEMPLATES: { id: TemplateId; name: string; description: string }[] 
   { id: "minimal", name: "Minimal", description: "Understated, typographic, lots of whitespace." },
   { id: "professional", name: "Professional", description: "Classic corporate structure with ruled tables." },
   { id: "bold", name: "Bold", description: "Big display type and a striking colored sidebar." },
+  { id: "fixedcost", name: "Fixed Cost", description: "Milestone billing for fixed-price projects — contract reference up front, lump-sum fees, no rate columns." },
 ];
 
 export const TEMPLATE_OPTIONS: SelectOption[] = TEMPLATES.map((t) => ({

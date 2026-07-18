@@ -4,6 +4,7 @@ import { ModernTemplate } from "./templates/modern";
 import { MinimalTemplate } from "./templates/minimal";
 import { ProfessionalTemplate } from "./templates/professional";
 import { BoldTemplate } from "./templates/bold";
+import { FixedCostTemplate } from "./templates/fixed-cost";
 
 export function InvoiceDocument({
   data,
@@ -23,6 +24,8 @@ export function InvoiceDocument({
       return <ProfessionalTemplate data={data} />;
     case "bold":
       return <BoldTemplate data={data} />;
+    case "fixedcost":
+      return <FixedCostTemplate data={data} />;
     default:
       return <EnterpriseTemplate data={data} />;
   }
