@@ -222,5 +222,13 @@
   .print-page {
     box-shadow: none !important;
     margin: 0 !important;
+    /* Invoices/estimates are single-page by design (the PDF route clips to
+       page 1). Pin the sheet a hair under A4 so fractional-pixel rounding in
+       browser print dialogs never spills a second page. */
+    min-height: 0 !important;
+    height: 296.5mm !important;
+    overflow: hidden;
+    break-inside: avoid;
+    page-break-after: avoid;
   }
 }
