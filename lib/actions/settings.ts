@@ -39,6 +39,7 @@ export async function updateCompanySettings(
       legalName: legalName!,
       tradeName: str(formData.get("tradeName")),
       arabicName: str(formData.get("arabicName")),
+      licenseNumber: str(formData.get("licenseNumber")),
       addressLine1: str(formData.get("addressLine1")),
       addressLine2: str(formData.get("addressLine2")),
       city: str(formData.get("city")),
