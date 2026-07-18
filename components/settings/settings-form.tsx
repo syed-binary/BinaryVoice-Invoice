@@ -128,7 +128,10 @@ export function SettingsForm({ company }: { company: CompanySettings }) {
             <Field label="Legal name" name="legalName" defaultValue={company.legalName} required />
             <Field label="Trade name" name="tradeName" defaultValue={company.tradeName} />
           </div>
-          <Field label="Arabic name" name="arabicName" defaultValue={company.arabicName} />
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field label="Arabic name" name="arabicName" defaultValue={company.arabicName} />
+            <Field label="Licence / registration no." name="licenseNumber" defaultValue={company.licenseNumber} placeholder="e.g. free-zone formation number" />
+          </div>
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Address line 1" name="addressLine1" defaultValue={company.addressLine1} />
             <Field label="Address line 2" name="addressLine2" defaultValue={company.addressLine2} />

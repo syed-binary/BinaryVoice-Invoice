@@ -44,6 +44,7 @@ model CompanySettings {
   legalName String
   tradeName String?
   arabicName String?
+  licenseNumber String? // trade licence / formation number (free-zone registration)
 
   addressLine1 String?
   addressLine2 String?
