@@ -8,6 +8,7 @@ import { formatDate, formatDateLong } from "@/lib/format";
 import { CONTRACT_STYLE, CONTRACT_TYPE_LABEL } from "@/lib/contract-status";
 import { PageHeader, PageBody } from "@/components/app/page-header";
 import { ContractActions } from "@/components/contracts/contract-actions";
+import { DocumentPanel } from "@/components/documents/document-panel";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,11 @@ export default async function ContractDetailPage({
     },
   });
   if (!contract) notFound();
+
+  const documents = await prisma.document.findMany({
+    where: { entityType: "CONTRACT", entityId: contract.id, archived: false },
+    orderBy: { createdAt: "desc" },
+  });
 
   const counterparty = contract.contractor ?? null;
   const defaultSignatory = counterparty
@@ -133,6 +139,26 @@ export default async function ContractDetailPage({
                 </div>
               )}
             </dl>
+          </div>
+
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
+            <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Documents</h3>
+            <DocumentPanel
+              entityType="CONTRACT"
+              entityId={contract.id}
+              documents={documents.map((d) => ({
+                id: d.id,
+                kind: d.kind,
+                fileName: d.fileName,
+                sizeBytes: d.sizeBytes,
+                expiryDate: d.expiryDate,
+                createdAt: d.createdAt,
+              }))}
+              kinds={[
+                { value: "CONTRACT_PDF", label: "Signed contract" },
+                { value: "GENERIC", label: "General" },
+              ]}
+            />
           </div>
 
           {contract.signatories.length > 0 && (
