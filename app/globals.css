@@ -209,6 +209,12 @@
 
 /* ---- Print / PDF ---- */
 @media print {
+  /* Documents must keep their ink bands / accent colors even when the
+     browser's "background graphics" print option is off. */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
   @page {
     size: A4;
     margin: 0;
