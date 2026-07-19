@@ -7,7 +7,13 @@ import { chromium } from "playwright";
 export async function renderPdfFromUrl(
   url: string,
   cookieHeader: string,
-  opts?: { singlePage?: boolean },
+  opts?: {
+    singlePage?: boolean;
+    /** Page margins for flowing documents (contracts). Default: none. */
+    margin?: { top: string; right: string; bottom: string; left: string };
+    /** Running footer (Chromium header/footer template HTML). */
+    footerTemplate?: string;
+  },
 ): Promise<Buffer> {
   const browser = await chromium.launch({
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
@@ -46,7 +52,14 @@ export async function renderPdfFromUrl(
       // Invoices/estimates are single-page documents; contracts flow to
       // as many pages as they need.
       ...(opts?.singlePage === false ? {} : { pageRanges: "1" }),
-      margin: { top: "0", right: "0", bottom: "0", left: "0" },
+      margin: opts?.margin ?? { top: "0", right: "0", bottom: "0", left: "0" },
+      ...(opts?.footerTemplate
+        ? {
+            displayHeaderFooter: true,
+            headerTemplate: "<span></span>",
+            footerTemplate: opts.footerTemplate,
+          }
+        : {}),
     });
     return pdf;
   } finally {

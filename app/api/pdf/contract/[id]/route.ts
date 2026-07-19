@@ -32,7 +32,15 @@ export async function GET(
     const pdf = await renderPdfFromUrl(
       `${url.origin}/print/contract/${id}`,
       request.headers.get("cookie") ?? "",
-      { singlePage: false },
+      {
+        singlePage: false,
+        margin: { top: "12mm", right: "0", bottom: "18mm", left: "0" },
+        footerTemplate: `
+          <div style="width:100%;padding:0 16mm;display:flex;justify-content:space-between;align-items:center;font-family:Helvetica,Arial,sans-serif;font-size:8px;color:#6f6f6f;">
+            <span>${contract.number}</span>
+            <span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
+          </div>`,
+      },
     );
     return new Response(new Uint8Array(pdf), {
       headers: {
