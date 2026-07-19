@@ -59,6 +59,7 @@ export default async function DashboardPage() {
     activeContractors,
     activeEngagements,
     employeeCount,
+    monthlyContractors,
   ] = await Promise.all([
     prisma.invoice.findMany({ include: { client: { select: { displayName: true } } }, orderBy: { issueDate: "desc" } }),
     prisma.payment.findMany({
@@ -98,6 +99,17 @@ export default async function DashboardPage() {
     seesHr
       ? prisma.employee.count({ where: { archived: false, terminationDate: null } })
       : Promise.resolve(0),
+    seesContractors
+      ? prisma.contractor.findMany({
+          where: {
+            archived: false,
+            status: { in: ["ONBOARDING", "ACTIVE"] },
+            defaultRateUnit: "MONTH",
+            defaultCostRate: { not: null },
+          },
+          select: { currency: true, defaultCostRate: true },
+        })
+      : Promise.resolve([]),
   ]);
 
   // --- Money, all in base currency ---
@@ -125,6 +137,12 @@ export default async function DashboardPage() {
       toNumber(c.basicSalary) + toNumber(c.housingAllowance) +
       toNumber(c.transportAllowance) + toNumber(c.otherAllowances);
     gratuity += gratuityAccrual(e.joinDate, now, toNumber(c.basicSalary)).accrued;
+  }
+  // Contractor rate cards are a recurring monthly commitment too — convert
+  // each monthly retainer to base currency and fold it into the payroll figure.
+  for (const c of monthlyContractors) {
+    const rate = (await getRate(c.currency, base)) ?? 1;
+    monthlyPayroll += toNumber(c.defaultCostRate) * rate;
   }
   const cashOut = round2(payablesDue + monthlyPayroll);
   const net = round2(receivables - cashOut);
@@ -234,7 +252,7 @@ export default async function DashboardPage() {
               {seesPayroll && (
                 <>
                   <div className="flex items-center justify-between">
-                    <dt className="flex items-center gap-2 text-muted-foreground"><PiggyBank className="size-4" /> Monthly payroll</dt>
+                    <dt className="flex items-center gap-2 text-muted-foreground"><PiggyBank className="size-4" /> Monthly payroll + contractors</dt>
                     <dd className="font-semibold tabular">{formatMoney(round2(monthlyPayroll), base)}</dd>
                   </div>
                   <div className="flex items-center justify-between">
