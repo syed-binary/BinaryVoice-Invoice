@@ -42,9 +42,14 @@ export default async function PrintContractPage({
       className="mx-auto max-w-[210mm] bg-white text-[11.5px] leading-relaxed"
       style={{ fontFamily: "var(--font-plex-sans), sans-serif", color: INK }}
     >
-      {/* Letterhead band — first page only, flows with the document */}
-      <div className="px-[16mm] pb-[5mm] pt-[6mm] text-white" style={{ backgroundColor: INK }}>
-        <div className="flex items-start justify-between">
+      {/* Letterhead band — first page only, flows with the document. The ink
+          fill is an inline SVG (not a CSS background) so it survives browser
+          printing even with "background graphics" turned off. */}
+      <div className="relative px-[16mm] pb-[5mm] pt-[6mm] text-white" style={{ backgroundColor: INK }}>
+        <svg className="absolute inset-0 z-0 h-full w-full" aria-hidden preserveAspectRatio="none">
+          <rect width="100%" height="100%" fill={INK} />
+        </svg>
+        <div className="relative z-[1] flex items-start justify-between">
           <div>
             <div className="text-[19px] font-semibold leading-none tracking-tight">
               {company.tradeName || company.legalName}
@@ -78,7 +83,7 @@ export default async function PrintContractPage({
           </div>
         </div>
       </div>
-      <div className="h-[3px]" style={{ backgroundColor: accent }} />
+      <div style={{ borderTop: `3px solid ${accent}` }} />
 
       {/* Metadata strip — mirrors the Enterprise invoice */}
       <div className="mx-[16mm] grid grid-cols-4 gap-6 border-b border-[#e0e0e0] pb-3 pt-4">
