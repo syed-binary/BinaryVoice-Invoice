@@ -32,6 +32,7 @@ export async function GET(
     const pdf = await renderPdfFromUrl(
       `${url.origin}/print/contract/${id}`,
       request.headers.get("cookie") ?? "",
+      { singlePage: false },
     );
     return new Response(new Uint8Array(pdf), {
       headers: {

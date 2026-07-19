@@ -7,6 +7,7 @@ import { chromium } from "playwright";
 export async function renderPdfFromUrl(
   url: string,
   cookieHeader: string,
+  opts?: { singlePage?: boolean },
 ): Promise<Buffer> {
   const browser = await chromium.launch({
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
@@ -42,7 +43,9 @@ export async function renderPdfFromUrl(
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
-      pageRanges: "1", // invoices/estimates are single-page documents
+      // Invoices/estimates are single-page documents; contracts flow to
+      // as many pages as they need.
+      ...(opts?.singlePage === false ? {} : { pageRanges: "1" }),
       margin: { top: "0", right: "0", bottom: "0", left: "0" },
     });
     return pdf;
