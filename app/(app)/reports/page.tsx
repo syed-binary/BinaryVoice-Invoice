@@ -17,8 +17,9 @@ export default async function ReportsPage() {
   const company = await getCompany();
   const base = company.baseCurrency;
   const seesPayroll = can(user.role ?? "MEMBER", "payroll:read");
+  const seesContractors = can(user.role ?? "MEMBER", "contractors:read");
 
-  const [invoices, payables, employees, engagements] = await Promise.all([
+  const [invoices, payables, employees, engagements, monthlyContractors] = await Promise.all([
     prisma.invoice.findMany({
       where: { status: { in: ["SENT", "PARTIALLY_PAID", "OVERDUE"] } },
     }),
@@ -36,6 +37,17 @@ export default async function ReportsPage() {
       where: { status: "ACTIVE", billRate: { not: null } },
       include: { contractor: { select: { id: true, name: true } }, client: { select: { displayName: true } } },
     }),
+    seesContractors
+      ? prisma.contractor.findMany({
+          where: {
+            archived: false,
+            status: { in: ["ONBOARDING", "ACTIVE"] },
+            defaultRateUnit: "MONTH",
+            defaultCostRate: { not: null },
+          },
+          select: { currency: true, defaultCostRate: true },
+        })
+      : Promise.resolve([]),
   ]);
 
   // Receivables outstanding, base currency.
@@ -55,10 +67,16 @@ export default async function ReportsPage() {
       toNumber(c.transportAllowance) + toNumber(c.otherAllowances);
     gratuity += gratuityAccrual(e.joinDate, now, toNumber(c.basicSalary)).accrued;
   }
+  // Contractor monthly rate cards are recurring commitments too — same
+  // treatment as the dashboard's payroll figure.
+  for (const c of monthlyContractors) {
+    const fx = (await getRate(c.currency, base)) ?? 1;
+    monthlyPayroll += toNumber(c.defaultCostRate) * fx;
+  }
   monthlyPayroll = round2(monthlyPayroll);
   gratuity = round2(gratuity);
 
-  const netPosition = round2(receivables - payablesDue - (seesPayroll ? monthlyPayroll : 0));
+  const netPosition = round2(receivables - payablesDue - (seesPayroll || seesContractors ? monthlyPayroll : 0));
 
   // Rate-card margins for active engagements (monthly-normalized where possible).
   const marginRows = [];
@@ -78,8 +96,8 @@ export default async function ReportsPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Receivables outstanding" value={formatMoney(receivables, base)} sub={`${invoices.length} open invoices`} icon={TrendingUp} accent="emerald" delay={0} />
           <StatCard label="Payables due" value={formatMoney(payablesDue, base)} sub={`${payables.length} approved payables`} icon={TrendingDown} accent="red" delay={70} />
-          {seesPayroll && (
-            <StatCard label="Monthly payroll" value={formatMoney(monthlyPayroll, base)} sub={`${employees.length} employees · gratuity ${formatMoney(gratuity, base)}`} icon={PiggyBank} accent="amber" delay={140} />
+          {(seesPayroll || seesContractors) && (
+            <StatCard label="Monthly payroll + contractors" value={formatMoney(monthlyPayroll, base)} sub={`${employees.length} employees · ${monthlyContractors.length} contractors · gratuity ${formatMoney(gratuity, base)}`} icon={PiggyBank} accent="amber" delay={140} />
           )}
           <StatCard label="Net position" value={formatMoney(netPosition, base)} sub="Receivables − payables − payroll" icon={Wallet} accent="primary" delay={210} />
         </div>
