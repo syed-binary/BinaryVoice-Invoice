@@ -151,11 +151,9 @@ export function ContractActions({
         </Button>
       )}
 
-      {status !== "DRAFT" && (
-        <Button variant="outline" render={<a href={`/api/pdf/contract/${contractId}?download=1`} />} className="gap-1.5">
-          <FileDown className="size-4" /> PDF
-        </Button>
-      )}
+      <Button variant="outline" render={<a href={`/api/pdf/contract/${contractId}?download=1`} />} className="gap-1.5">
+        <FileDown className="size-4" /> PDF
+      </Button>
 
       {["SENT", "SIGNED", "ACTIVE"].includes(status) && (
         <ConfirmButton
