@@ -24,7 +24,11 @@ export default async function PrintContractPage({
   const [contract, company] = await Promise.all([
     prisma.contract.findUnique({
       where: { id },
-      include: { signatories: { orderBy: { order: "asc" } } },
+      include: {
+        signatories: { orderBy: { order: "asc" } },
+        contractor: { select: { name: true } },
+        client: { select: { displayName: true } },
+      },
     }),
     getCompany(),
   ]);
@@ -76,8 +80,16 @@ export default async function PrintContractPage({
       </div>
       <div className="h-[3px]" style={{ backgroundColor: accent }} />
 
+      {/* Metadata strip — mirrors the Enterprise invoice */}
+      <div className="mx-[16mm] grid grid-cols-4 gap-6 border-b border-[#e0e0e0] pb-3 pt-4">
+        <Meta label="Effective date" value={contract.effectiveDate ? formatDateLong(contract.effectiveDate) : "—"} />
+        <Meta label="Counterparty" value={contract.contractor?.name ?? contract.client?.displayName ?? "—"} />
+        <Meta label="Notice period" value={contract.noticePeriodDays != null ? `${contract.noticePeriodDays} days` : "—"} />
+        <Meta label="Status" value={contract.status.charAt(0) + contract.status.slice(1).toLowerCase()} />
+      </div>
+
       {/* Document body */}
-      <div className="px-[16mm] py-[8mm]">
+      <div className="px-[16mm] py-[6mm]">
         <div
           className="contract-body
             [&_h1]:mb-4 [&_h1]:text-[21px] [&_h1]:font-bold [&_h1]:tracking-tight
@@ -137,11 +149,28 @@ export default async function PrintContractPage({
           @page { margin: 12mm 0 18mm 0; }
         }
         .contract-body h2 { border-color: ${accent}; }
-        .contract-body th { border-bottom: 1.5px solid ${INK}; }
+        .contract-body th { border-bottom: 1.5px solid ${INK}; color: #6f6f6f; }
         .contract-body tr { break-inside: avoid; }
         .contract-body h2, .contract-body h3 { break-after: avoid; }
         .contract-body strong { color: ${INK}; }
+        /* Key-value tables: label column styled like invoice field labels */
+        .contract-body td:first-child strong {
+          font-size: 9px;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: #6f6f6f;
+        }
       `}</style>
+    </div>
+  );
+}
+
+function Meta({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="text-[8.5px] font-medium uppercase tracking-[0.12em] text-[#6f6f6f]">{label}</div>
+      <div className="mt-0.5 text-[11px] font-medium">{value}</div>
     </div>
   );
 }

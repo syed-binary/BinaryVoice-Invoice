@@ -23,6 +23,7 @@ export async function GET(
     where: { id },
     select: { number: true },
   });
+  const company = await prisma.companySettings.findUnique({ where: { id: "company" } });
   if (!contract) return new Response("Not found", { status: 404 });
 
   const url = new URL(request.url);
@@ -36,9 +37,9 @@ export async function GET(
         singlePage: false,
         margin: { top: "12mm", right: "0", bottom: "18mm", left: "0" },
         footerTemplate: `
-          <div style="width:100%;padding:0 16mm;display:flex;justify-content:space-between;align-items:center;font-family:Helvetica,Arial,sans-serif;font-size:8px;color:#6f6f6f;">
-            <span>${contract.number}</span>
-            <span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
+          <div style="width:100%;margin:0 16mm;border-top:2px solid #161616;padding-top:5px;display:flex;justify-content:space-between;align-items:baseline;font-family:Helvetica,Arial,sans-serif;font-size:7.5px;color:#6f6f6f;">
+            <span><span style="color:#161616;font-weight:600;">${company?.legalName ?? ""}</span>${company?.licenseNumber ? ` &middot; Licence No. ${company.licenseNumber}` : ""}</span>
+            <span style="font-family:Menlo,monospace;">${contract.number} &middot; Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
           </div>`,
       },
     );
