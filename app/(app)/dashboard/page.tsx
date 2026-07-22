@@ -14,6 +14,7 @@ import {
   Users,
   UserCog,
   PiggyBank,
+  Landmark,
   ArrowUpRight,
   Plus,
 } from "lucide-react";
@@ -60,6 +61,9 @@ export default async function DashboardPage() {
     activeEngagements,
     employeeCount,
     monthlyContractors,
+    receivedAgg,
+    paidOutAgg,
+    payrollPaidAgg,
   ] = await Promise.all([
     prisma.invoice.findMany({ include: { client: { select: { displayName: true } } }, orderBy: { issueDate: "desc" } }),
     prisma.payment.findMany({
@@ -110,6 +114,13 @@ export default async function DashboardPage() {
           select: { currency: true, defaultCostRate: true },
         })
       : Promise.resolve([]),
+    prisma.payment.aggregate({ _sum: { baseAmount: true } }),
+    seesContractors
+      ? prisma.payout.aggregate({ _sum: { baseAmount: true } })
+      : Promise.resolve({ _sum: { baseAmount: null } }),
+    seesPayroll
+      ? prisma.payrollRun.aggregate({ where: { status: "PAID" }, _sum: { totalNet: true } })
+      : Promise.resolve({ _sum: { totalNet: null } }),
   ]);
 
   // --- Money, all in base currency ---
@@ -145,7 +156,16 @@ export default async function DashboardPage() {
     monthlyPayroll += toNumber(c.defaultCostRate) * rate;
   }
   const cashOut = round2(payablesDue + monthlyPayroll);
-  const net = round2(receivables - cashOut);
+
+  // Cash actually held: everything received minus everything paid out, as
+  // recorded in the system (invoice payments − contractor payouts − payroll).
+  const cashOnHand = round2(
+    toNumber(receivedAgg._sum.baseAmount) -
+      toNumber(paidOutAgg._sum.baseAmount) -
+      toNumber(payrollPaidAgg._sum.totalNet),
+  );
+  // Net position = cash actually held minus everything due to go out.
+  const net = round2(cashOnHand - cashOut);
 
   // Weighted pipeline in base currency.
   let pipeline = 0;
@@ -200,11 +220,12 @@ export default async function DashboardPage() {
 
       <PageBody className="space-y-6">
         {/* Row 1 — the money */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Cash in (receivables)" value={formatMoney(round2(receivables), base)} sub={`${formatMoney(round2(overdue), base)} overdue`} icon={TrendingUp} accent="emerald" delay={0} />
-          <StatCard label="Cash out (due)" value={formatMoney(cashOut, base)} sub={seesPayroll ? `payables + monthly payroll` : "approved payables"} icon={TrendingDown} accent="red" delay={60} />
-          <StatCard label="Net position" value={formatMoney(net, base)} sub="in − out" icon={Wallet} accent="primary" delay={120} />
-          <StatCard label="Weighted pipeline" value={formatMoney(pipeline, base)} sub={`${openDeals.length} open deal${openDeals.length === 1 ? "" : "s"}`} icon={Target} accent="amber" delay={180} />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <StatCard label="Cash with Binary Labs" value={formatMoney(cashOnHand, base)} sub="received − paid out" icon={Landmark} accent="primary" delay={0} />
+          <StatCard label="Cash in (receivables)" value={formatMoney(round2(receivables), base)} sub={`${formatMoney(round2(overdue), base)} overdue`} icon={TrendingUp} accent="emerald" delay={60} />
+          <StatCard label="Cash out (due)" value={formatMoney(cashOut, base)} sub={seesPayroll ? `payables + monthly payroll` : "approved payables"} icon={TrendingDown} accent="red" delay={120} />
+          <StatCard label="Net position" value={formatMoney(net, base)} sub="cash held − cash out" icon={Wallet} accent="primary" delay={180} />
+          <StatCard label="Weighted pipeline" value={formatMoney(pipeline, base)} sub={`${openDeals.length} open deal${openDeals.length === 1 ? "" : "s"}`} icon={Target} accent="amber" delay={240} />
         </div>
 
         {/* Row 2 — needs attention + workforce */}

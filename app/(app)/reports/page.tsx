@@ -19,7 +19,7 @@ export default async function ReportsPage() {
   const seesPayroll = can(user.role ?? "MEMBER", "payroll:read");
   const seesContractors = can(user.role ?? "MEMBER", "contractors:read");
 
-  const [invoices, payables, employees, engagements, monthlyContractors] = await Promise.all([
+  const [invoices, payables, employees, engagements, monthlyContractors, receivedAgg, paidOutAgg, payrollPaidAgg] = await Promise.all([
     prisma.invoice.findMany({
       where: { status: { in: ["SENT", "PARTIALLY_PAID", "OVERDUE"] } },
     }),
@@ -48,6 +48,13 @@ export default async function ReportsPage() {
           select: { currency: true, defaultCostRate: true },
         })
       : Promise.resolve([]),
+    prisma.payment.aggregate({ _sum: { baseAmount: true } }),
+    seesContractors
+      ? prisma.payout.aggregate({ _sum: { baseAmount: true } })
+      : Promise.resolve({ _sum: { baseAmount: null } }),
+    seesPayroll
+      ? prisma.payrollRun.aggregate({ where: { status: "PAID" }, _sum: { totalNet: true } })
+      : Promise.resolve({ _sum: { totalNet: null } }),
   ]);
 
   // Receivables outstanding, base currency.
@@ -76,7 +83,14 @@ export default async function ReportsPage() {
   monthlyPayroll = round2(monthlyPayroll);
   gratuity = round2(gratuity);
 
-  const netPosition = round2(receivables - payablesDue - (seesPayroll || seesContractors ? monthlyPayroll : 0));
+  // Same cash-based formula as the dashboard: cash actually held minus
+  // everything due to go out.
+  const cashOnHand = round2(
+    toNumber(receivedAgg._sum.baseAmount) -
+      toNumber(paidOutAgg._sum.baseAmount) -
+      toNumber(payrollPaidAgg._sum.totalNet),
+  );
+  const netPosition = round2(cashOnHand - payablesDue - (seesPayroll || seesContractors ? monthlyPayroll : 0));
 
   // Rate-card margins for active engagements (monthly-normalized where possible).
   const marginRows = [];
@@ -99,7 +113,7 @@ export default async function ReportsPage() {
           {(seesPayroll || seesContractors) && (
             <StatCard label="Monthly payroll + contractors" value={formatMoney(monthlyPayroll, base)} sub={`${employees.length} employees · ${monthlyContractors.length} contractors · gratuity ${formatMoney(gratuity, base)}`} icon={PiggyBank} accent="amber" delay={140} />
           )}
-          <StatCard label="Net position" value={formatMoney(netPosition, base)} sub="Receivables − payables − payroll" icon={Wallet} accent="primary" delay={210} />
+          <StatCard label="Net position" value={formatMoney(netPosition, base)} sub={`Cash held ${formatMoney(cashOnHand, base)} − payables − payroll`} icon={Wallet} accent="primary" delay={210} />
         </div>
 
         {payables.length > 0 && (
